@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <title>SUDOKU</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link type="text/css" href="css/custom-theme/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+        <link type="text/css" href="css/sudoku.css" rel="stylesheet" />	
+        <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="tree.js"></script>
+        <link rel="stylesheet" href="css/jquery.jOrgChart.css"/>
+
+        <script src="js/jquery.jOrgChart.js"></script>
+
+        <script>
+            
+            var totalNums = [56,55,54,53,52,51]; // total of numbers that will hide
+            var hideNumsMatrix = new Array();
+            
+            function randomPos(row,col)
+            {
+                var random_row, random_col;
+                
+                random_row = Math.floor(Math.random()*9);
+                random_col = Math.floor(Math.random()*9);
+
+                if(hideNumsMatrix[random_row][random_col])
+                {
+                    return randomPos(row,col);
+                }
+                
+                var arrayRandom = new Array();
+                arrayRandom['row'] = random_row;
+                arrayRandom['col'] = random_col;
+                
+                return arrayRandom;
+            }
+            
+            function hideNums(level)
+            {
+                var row = Math.floor(Math.random()*9);
+                var col = Math.floor(Math.random()*9);
+                
+                hideNumsMatrix[row][col] = $('#field_'+row+'_'+col).val();
+                
+                for(var i=0;i<totalNums[level]; i++)
+                {
+                                        
+                    row = Math.floor(Math.random()*9);
+                    col = Math.floor(Math.random()*9);
+                    var arrayRandom = randomPos(row,col);
+                    
+                    hideNumsMatrix[arrayRandom['row']][arrayRandom['col']] = $('#field_'+arrayRandom['row']+'_'+arrayRandom['col']).val();
+                    
+                    
+                    $('#field_'+arrayRandom['row']+'_'+arrayRandom['col']).val('').attr('readonly',false);
+                }
+                
+            }
+
+            function fillSudoku()
+            {
+                var matrix = new Array();
+                for(var rowCounter=0;rowCounter<9;rowCounter++)
+                {
+                    matrix[rowCounter] = new Array();
+                    for(var colCounter=0;colCounter<9;colCounter++)
+                    {
+                        //var number = colCounter/1 + 1 + (rowCounter*3) + Math.floor(rowCounter/3)%3;
+                        var number = colCounter + 1 + (rowCounter*3) + Math.floor(rowCounter/3)%3;
+                        //console.log(number, Math.floor(rowCounter/3)%3, colCounter/1 + 1 + (rowCounter*3));
+                        if(number>9)
+                            number = number % 9;
+                        if(number==0)
+                            number=9;
+                        matrix[rowCounter][colCounter] = number;				
+                    }			
+                }
+                // Switching rows
+                for(var no=0;no<9;no+=3)
+                {
+                    for(var no2=0;no2<3;no2++)
+                    {
+                        row1 = Math.floor(Math.random()*3);	
+                        row2 = Math.floor(Math.random()*3);	
+                        while(row2==row1)
+                        {
+                            row2 = Math.floor(Math.random()*3);	
+                        }
+                        row1 = row1 + no;
+                        row2 = row2 + no;			
+                        var tmpMatrix = new Array();
+                        tmpMatrix = matrix[row1];
+                        matrix[row1] = matrix[row2];
+                        matrix[row2] = tmpMatrix; 				
+                    }			
+                }
+                // Switching columns
+                for(var no=0;no<9;no+=3)
+                {
+                    for(var no2=0;no2<3;no2++)
+                    {
+                        col1 = Math.floor(Math.random()*3);	
+                        col2 = Math.floor(Math.random()*3);	
+                        while(col2==col1)
+                        {
+                            col2 = Math.floor(Math.random()*3);	
+                        }
+                        col1 = col1 + no;
+                        col2 = col2 + no;			
+
+                        var tmpMatrix = new Array();
+                        for(var no3=0;no3<matrix.length;no3++)
+                        {
+                            tmpMatrixValue = matrix[no3][col1];
+                            matrix[no3][col1] = matrix[no3][col2];				
+                            matrix[no3][col2] = tmpMatrixValue;				
+                        }
+                    }	
+                }
+		
+			
+                for(var x=0;x<matrix.length;x++)
+                {
+                    for(var y=0;y<matrix[x].length;y++)
+                    {				
+                        $('#field_'+x+'_'+y).val(matrix[x][y]);						
+                    }			
+                }
+            }
+            
+            function navegate(e,id)
+            {
+                var evt = (e) ? e : window.event;
+                var tecla = evt.keyCode;
+
+                var left = 37;
+                var up = 38;
+                var right = 39;
+                var down = 40;
+
+                if( tecla == left || tecla == up || tecla == right || tecla == down )
+                {
+                    var split_field = id.split('_');
+                    var row = split_field[1];
+                    var coluna = split_field[2];
+
+                    var field;
+                    var newrow = row;
+                    var newCol = coluna;
+
+                    if( tecla == left )
+                        newCol = parseFloat(coluna) -1;
+                    else
+                        if( tecla == up )
+                            newrow = parseFloat(row) -1;
+                    else
+                        if( tecla == right )
+                            newCol = parseFloat(coluna) +1;
+                    else
+                        if( tecla == down )
+                            newrow = parseFloat(row) +1;
+
+                    field = $('#field_'+newrow+'_'+newCol);
+                    if( field )
+                        field.focus();
+                }
+            }
+            
+            function initSudoku(level)
+            {
+                for (var x = 0; x < 9; x++)
+                {
+                    hideNumsMatrix[x] = new Array();
+                }
+                fillSudoku();
+                hideNums(level);
+            }
+            
+            function solveSudoku()
+            {
+                
+                for (var x = 0; x < 9; x++) 
+                {
+                    for (var y = 0;  y < 9;  y++) 
+                    {
+                        if(hideNumsMatrix[x][y])
+                        {
+                            $('#field_'+x+'_'+y).val(hideNumsMatrix[x][y]).css('background-color','lightblue'); 
+                        }
+                    }
+                }
+            }
+
+            $(document).ready(function() 
+            {
+                var aux_l = 3; //auxiliar para id das linhas
+                var aux_c = 0; 
+                var nLinha = 0;
+                var $game = $('<div>').attr('id', 'game');
+
+                for (var z = 0; z < 9; z++)
+                {
+                    var $sudoku_table = $('<table>').attr('id', 'sudoku_table_'+z).attr('style','float:left; ');
+				
+                    // if para ajustar o ID da linha
+                    if(z >= 3 && z < 6)
+                    {
+                        aux_l = 3;
+                    }
+                    // if para ajustar o ID da linha
+                    if(z>5)
+                    {
+                        aux_l = 6;				
+                    }
+				
+                    aux_c = 0;
+                    for (var x = 0; x < 3; x++)
+                    {
+                        nLinha = x;
+                        // if para ajustar o ID da linha
+                        if(z >= 3)
+                        {							
+                            nLinha = aux_l;					
+                            aux_l++;
+                        }						
+                        var $row = $('<tr>').attr('id','row_'+nLinha);
+                        
+                        
+                        if(z == 0 || z == 3 || z == 6)
+                        {
+                            aux_c = 0;
+                        }
+                        
+                        if(z == 1 || z == 4 || z == 7)
+                        {
+                            aux_c = 3;
+                        }
+                        if(z == 2 || z == 5 || z == 8)
+                        {
+                            aux_c = 6;
+                        }
+                        
+                        for (var y = 0; y < 3; y++) 
+                        {
+                            $row.append($('<td>').attr('id','col_'+nLinha+'_'+aux_c).append('<input onfocus="$(this).css(\'background-color\', \'lightgreen\'); this.select(); " onBlur = "$(this).css(\'background-color\', \'\');" onkeydown = "navegate(event, this.id);" id="field_'+nLinha+'_'+aux_c+'" type="text" maxlength="1" class="field" readonly="1" >'));		        	
+                            aux_c++;
+                        }
+                        $sudoku_table.append($row);
+                    }
+                    $game.append($sudoku_table);
+            	
+                }
+            
+                $('#content').append($game);
+                initSudoku(1);
+                
+                $('#sudoku_table_0').css('border-top','6px solid black');
+                $('#sudoku_table_0').css('border-left','6px solid black');
+                $('#sudoku_table_0').css('border-right','3px solid black');
+                $('#sudoku_table_0').css('border-bottom','3px solid black');
+                
+                $('#sudoku_table_1').css('border-top','6px solid black');
+                $('#sudoku_table_1').css('border-bottom','3px solid black');
+                $('#sudoku_table_1').css('border-right','3px solid black');
+                
+                $('#sudoku_table_2').css('border-top','6px solid black');
+                $('#sudoku_table_2').css('border-right','6px solid black');
+                $('#sudoku_table_2').css('border-bottom','3px solid black');
+                
+                $('#sudoku_table_3').css('border-left','6px solid black');
+                $('#sudoku_table_3').css('border-bottom','3px solid black');
+                $('#sudoku_table_3').css('border-right','3px solid black');
+                
+                $('#sudoku_table_4').css('border-bottom','3px solid black');
+                $('#sudoku_table_4').css('border-right','3px solid black');
+                
+                
+                $('#sudoku_table_5').css('border-right','6px solid black');
+                $('#sudoku_table_5').css('border-bottom','3px solid black');
+                
+                $('#sudoku_table_6').css('border-left','6px solid black');
+                $('#sudoku_table_6').css('border-bottom','6px solid black');
+                $('#sudoku_table_6').css('border-right','3px solid black');
+                
+                $('#sudoku_table_7').css('border-bottom','6px solid black');
+                $('#sudoku_table_7').css('border-right','3px solid black');
+                
+                $('#sudoku_table_8').css('border-right','6px solid black');
+                $('#sudoku_table_8').css('border-bottom','6px solid black');
+                
+            });	
+
+	
+        </script>
+
+    </head>
+
+    <div id='content'>	
+
+
+        <div id="menu">
+
+            <div class="categoria">
+                Dificuldade
+            </div>
+
+            <div class="menuItem" onclick="initSudoku(0);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 1
+            </div>
+            <div class="menuItem" onclick="initSudoku(1);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 2
+            </div>
+            <div class="menuItem" onclick="initSudoku(2);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 3
+            </div>
+            <div class="menuItem" onclick="initSudoku(3);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 4
+            </div>
+            <div class="menuItem" onclick="initSudoku(4);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 5
+            </div>
+
+            <div class="categoria">
+                Operations
+            </div>
+
+            <div class="menuItem" onclick="initSudoku(1);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> Reset
+            </div>
+            <div class="menuItem" onclick="solveSudoku();">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> Solve
+            </div>
+
+        </div>
+    </div>
+
+
+    
+    <div id="org_tree">
+        
+    </div>
+    
+    <div id="tree" class="orgChart">
+        
+    </div>
+    
+    
+    
+</body>
+</html>
+
+
