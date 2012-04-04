@@ -1,0 +1,62 @@
+body
+{
+    background-color: lightsteelblue;
+}
+
+#game
+{
+    width:460px;
+/*    height: 370px;*/
+    margin-left:100px; 
+    margin-top:80px;
+    float:left;
+}
+
+.field
+{
+    width:39px;
+    height:39px;
+    font-size:32px;
+    text-align:center;
+    border: 1px solid black;
+    margin:-3px;
+}
+
+#menu
+{
+    width:120px;
+    height: 200px;
+    margin-top:100px;
+    margin-left:20px;
+    float:left;
+}
+
+.menuItem
+{
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: inherit;
+    color: #555;
+    font-size: 16px;
+    width: 100px;
+    margin-top:10px;
+    border-bottom: 1px solid black;
+}
+
+.menuItem:hover 
+{
+    font-weight: bolder;
+}
+
+.categoria
+{
+    color: royalblue;
+    cursor: default;
+    font-size: 22px;
+    font-weight: bold;
+    font-variant: small-caps;
+    margin-bottom: 0;
+    text-indent: 5px;
+    width: 100%;
+}
