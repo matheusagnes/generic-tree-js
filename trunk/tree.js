@@ -19,6 +19,11 @@ function Node (value)
     {
         this.parent = node;
     }
+    
+    this.getParent = function()
+    {
+        return this.parent;
+    }
 	
     this.getChildren = function()
     {
@@ -43,30 +48,46 @@ function Tree(root)
     this.root = root;
     this.size = 1;
     
-    this.addChild = function(Node)
-    {
-        this.children.push(Node);
-    };
-    
-    this.getNodes = function(node)
+    this.getNodes = function(node, arrayOfNodes)
     {
         if(node == this.root)
         {
-            console.log(node.getElement());
+            arrayOfNodes.push(node)
         }
         else
         {
-            console.log(node.getElement());
+            arrayOfNodes.push(node);
         }
         
         if(node.getChildren().length > 0)
         {
             for(var i = 0; i < node.getChildren().length; i++)
             {
-                this.getNodes(node.getChildren()[i]);
+                this.getNodes(node.getChildren()[i], arrayOfNodes);
             }
         }
-        return 'success';
+        return arrayOfNodes;
+    };
+    
+    this.getElements = function(node, arrayOfElements)
+    {
+        if(node == this.root)
+        {
+            arrayOfElements.push(node.getElement())
+        }
+        else
+        {
+            arrayOfElements.push(node.getElement());
+        }
+        
+        if(node.getChildren().length > 0)
+        {
+            for(var i = 0; i < node.getChildren().length; i++)
+            {
+                this.getElements(node.getChildren()[i], arrayOfElements);
+            }
+        }
+        return arrayOfElements;
     };
     
     this.show = function(node)
@@ -114,11 +135,18 @@ function Tree(root)
         node2.setElement(node1Element);
     };
     
+    /*
+     * This function changes the element of one node for  new value
+     */
     this.replaceElement = function(node, value)
     {
         node.setElement(value);
     };
     
+    /*
+     * Return true if the node is the root of the tree
+     * and false it isn't the root
+     */
     this.isRoot = function(node)
     {
         if(root == node)
@@ -128,6 +156,10 @@ function Tree(root)
         return false;
     }
     
+    /*
+     * Return true if the node is enternal
+     * and false if the node is ixternal
+     */
     this.isInternal = function(node)
     {
         if(node.getChildren().length > 0)
@@ -137,6 +169,10 @@ function Tree(root)
         return false;
     }
     
+    /*
+     * Return true if the node is external
+     * and false if the node is internal
+     */
     this.isExternal = function(node)
     {
         if(node.getChildren().length == 0)
@@ -146,21 +182,80 @@ function Tree(root)
         return false;
     }
     
+    /*
+     * Remove one external node
+     */
     this.removeExternal = function(node)
     {
-        var father = node.getParent();
-        for(var i = 0; father.getChildren().length < i; i++)
+        if(tree.isExternal(node))
         {
-            if(father.getChildren()[i] == node)
-            {
-                father.getChildren()[i] = null;
-                for(var x = i; x < father.getChildren().length; x++)
+            var father = node.getParent();
+            for(var i = 0;  i < father.getChildren().length; i++)
+            {   
+                if(father.getChildren()[i] == node)
                 {
-                    father.getChildren()[x] = father.getChildren()[x+1];
+                    father.getChildren()[i] = null;
+                    for(var x = i; x < father.getChildren().length; x++)
+                    {
+                        father.getChildren()[x] = father.getChildren()[x+1];
+                    }
+                    father.getChildren().pop();
+                    this.size--;
+                    return true;
                 }
-                return;
             }
         }
+        else
+        {
+            alert('Impossível deletar este node ele não é externo!')
+        }
+        return false;
+    };
+    
+    /*
+     * Return the size of the tree
+     */
+    this.getSize = function()
+    {
+        return this.size;
+    };
+    
+    
+    /*
+     * Return all nodes of the tree in a array
+     */
+    this.positions = function()
+    {
+        return this.getNodes(this.root, new Array());
+    };
+    
+    this.elements = function()
+    {
+        return this.getElements(this.root, new Array());
+    }
+    
+    this.parent = function(node)
+    {     
+        return node.getParent();
+    }
+    
+    this.children = function(node)
+    {
+        return node.getChildren();
+    }
+    
+    this.showTree = function()
+    {
+        
+        jQuery(document).ready(function() {
+       
+            $('#org_tree').append(tree.show(tree.root));
+
+            $("#org").jOrgChart({
+                chartElement : '#tree',
+                dragAndDrop  : false
+            });
+        });
     }
 }
 
@@ -178,6 +273,14 @@ node7 = tree.addChild(node6,7);
 node8 = tree.addChild(node2,8);
 node9 = tree.addChild(node2,9);
 
+console.log(tree.positions())
+console.log(tree.elements());
+
+tree.showTree();
+
+//console.log(tree.size);
+//tree.removeExternal(node7);
+
 //console.log(tree.isInternal(root));
 
 //tree.swapElements(root, node7);
@@ -185,79 +288,3 @@ node9 = tree.addChild(node2,9);
 
 //console.log(tree.isRoot(root));
 //tree.getNodes(tree.root);
-
-jQuery(document).ready(function() {
-       
-    $('#org_tree').append(tree.show(tree.root));
-
-    $("#org").jOrgChart({
-        chartElement : '#tree',
-        dragAndDrop  : false
-    });
-});
-    
-    
-
-
-
-
-
-
-//
-//var children = new Array();
-//
-//function Tree(root) 
-//{
-//    this.root=root;
-//    this.children = children;
-//    this.add=add;
-//}
-//function add(node) 
-//{
-//    with (this) Tree.children[0] = node;
-//}
-//
-//
-//tree = new Tree('root');
-//tree.add(1);
-//tree.add(4);
-//tree.add(3);
-//
-//console.log(Tree.children);
-//
-//this.show = function(node)
-//    {        
-//        if(node == this.root)
-//        {
-//            ul_root = $('<ul>').attr('id','org').attr('style','display:none;');
-//            li_root = $('<li>').append(node.element);
-//        }
-//
-//        for(var i = 0; i < node.children.length; i++)
-//        {
-//            
-//            li = $('<li>');
-//            li.append(node.children[i].element);
-//            
-//            if(node.children[i].parent == this.root)
-//            {
-//                ul = $('<ul>');
-//                ul.append(li)
-//                li_root.append(ul);
-//            }
-//            else
-//            {
-//                ul.append(li);
-//            }
-//            
-//            if(node.children[i].children.length > 0)
-//            {
-//                ul = $('<ul>');
-//                li.append(ul);
-//                this.show(node.children[i]);
-//            }
-//           
-//        }
-//        
-//        return ul_root.append(li_root);
-//    };

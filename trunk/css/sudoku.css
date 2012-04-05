@@ -7,9 +7,9 @@ body
 {
     width:460px;
 /*    height: 370px;*/
-    margin-left:100px; 
+    margin-right:250px; 
     margin-top:80px;
-    float:left;
+    float:right;
 }
 
 .field
@@ -59,4 +59,17 @@ body
     margin-bottom: 0;
     text-indent: 5px;
     width: 100%;
+}
+
+.tree{
+    width:500px;
+    height: 500px;
+    float:right;
+}
+
+.treeOperations{
+  width: 250px;
+  float:right;
+  height: 250px;
+  border: 1px solid;
 }
