@@ -10,25 +10,30 @@ function Node (value)
         return this.element;
     }
 	
-	this.addChild = function(node)
-	{
-		this.children.push(node);
-	}
+    this.addChild = function(node)
+    {
+        this.children.push(node);
+    }
 
-	this.setParent = function(node)
-	{
-		this.parent = node;
-	}
+    this.setParent = function(node)
+    {
+        this.parent = node;
+    }
 	
-	this.getChildren = function()
-	{
-		return this.children;	
-	}
+    this.getChildren = function()
+    {
+        return this.children;	
+    }
 
-	this.getElement = function()
-	{
-		return this.element;	
-	}
+    this.getElement = function()
+    {
+        return this.element;	
+    }
+    
+    this.setElement = function(value)
+    {
+        this.element = value;
+    }
 
 
 }
@@ -51,7 +56,7 @@ function Tree(root)
         }
         else
         {
-			console.log(node.getElement());
+            console.log(node.getElement());
         }
         
         if(node.getChildren().length > 0)
@@ -89,17 +94,74 @@ function Tree(root)
         return x;
     };
 
-	this.addChild = function(node, element)
-	{
-		var childNode = new Node(element);
-		childNode.setParent(node);
+    this.addChild = function(node, element)
+    {
+        var childNode = new Node(element);
+        childNode.setParent(node);
 
-		node.addChild(childNode);
+        node.addChild(childNode);
 
-		this.size++;
+        this.size++;
 
-		return childNode;
-	};
+        return childNode;
+    };
+    
+    this.swapElements = function(node1,node2)
+    {
+        var node1Element = node1.getElement();
+        
+        node1.setElement(node2.getElement());
+        node2.setElement(node1Element);
+    };
+    
+    this.replaceElement = function(node, value)
+    {
+        node.setElement(value);
+    };
+    
+    this.isRoot = function(node)
+    {
+        if(root == node)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    this.isInternal = function(node)
+    {
+        if(node.getChildren().length > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    this.isExternal = function(node)
+    {
+        if(node.getChildren().length == 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    this.removeExternal = function(node)
+    {
+        var father = node.getParent();
+        for(var i = 0; father.getChildren().length < i; i++)
+        {
+            if(father.getChildren()[i] == node)
+            {
+                father.getChildren()[i] = null;
+                for(var x = i; x < father.getChildren().length; x++)
+                {
+                    father.getChildren()[x] = father.getChildren()[x+1];
+                }
+                return;
+            }
+        }
+    }
 }
 
 
@@ -116,9 +178,13 @@ node7 = tree.addChild(node6,7);
 node8 = tree.addChild(node2,8);
 node9 = tree.addChild(node2,9);
 
+//console.log(tree.isInternal(root));
 
+//tree.swapElements(root, node7);
+//tree.replaceElement(root, 99);
 
-tree.getNodes(tree.root);
+//console.log(tree.isRoot(root));
+//tree.getNodes(tree.root);
 
 jQuery(document).ready(function() {
        
