@@ -140,7 +140,10 @@ function Tree(root)
      */
     this.replaceElement = function(node, value)
     {
+        var oldValue = node.getElement();
         node.setElement(value);
+        
+        return oldValue;
     };
     
     /*
@@ -248,8 +251,8 @@ function Tree(root)
     {
         
         jQuery(document).ready(function() {
-       
-            $('#org_tree').append(tree.show(tree.root));
+            $('#tree').html('');
+            $('#org_tree').html(tree.show(tree.root));
 
             $("#org").jOrgChart({
                 chartElement : '#tree',
@@ -257,34 +260,38 @@ function Tree(root)
             });
         });
     }
+    
 }
 
 
-root = new Node(0);
-tree = new Tree(root);
+var a = new Node("A");
+tree = new Tree(a);
 
-node1 = tree.addChild(root,1);
-node2 = tree.addChild(root,2);
-node3 = tree.addChild(root,3);
-node4 = tree.addChild(node3,4);
-node5 = tree.addChild(node4,5);
-node6 = tree.addChild(node4,6);
-node7 = tree.addChild(node6,7);
-node8 = tree.addChild(node2,8);
-node9 = tree.addChild(node2,9);
+var b = tree.addChild(a, "B");
+var c = tree.addChild(tree.parent(b), "C");
+var d = tree.addChild(b, "D");
 
-console.log(tree.positions())
-console.log(tree.elements());
+console.log("a is root? " + tree.isRoot(a));
+console.log("c is ext.? " + tree.isExternal(c));
+console.log("d is int.? " + tree.isInternal(d));
+console.log("tree size=" + tree.getSize());
+
+console.log("children of a: " + tree.children(a));
+console.log("tree elements: " + tree.elements());
+var node_list = tree.positions();
+console.log("# of nodes=" + node_list.length);
+
+tree.swapElements(a, b);
+console.log("a now contains " + a);
+console.log("b now contains " + b);
+        
+var s = tree.replaceElement(c, "CC");
+console.log("c now contains " + c + " but previoulsy had " + s);
+        
+console.log("b has " + tree.children(b).length + " child nodes");
+tree.removeExternal(d);
+console.log("b now has " + tree.children(b).length + " child nodes");
+
+
 
 tree.showTree();
-
-//console.log(tree.size);
-//tree.removeExternal(node7);
-
-//console.log(tree.isInternal(root));
-
-//tree.swapElements(root, node7);
-//tree.replaceElement(root, 99);
-
-//console.log(tree.isRoot(root));
-//tree.getNodes(tree.root);
