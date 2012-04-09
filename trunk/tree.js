@@ -50,14 +50,7 @@ function Tree(root)
     
     this.getNodes = function(node, arrayOfNodes)
     {
-        if(node == this.root)
-        {
-            arrayOfNodes.push(node)
-        }
-        else
-        {
-            arrayOfNodes.push(node);
-        }
+        arrayOfNodes.push(node);
         
         if(node.getChildren().length > 0)
         {
@@ -71,14 +64,7 @@ function Tree(root)
     
     this.getElements = function(node, arrayOfElements)
     {
-        if(node == this.root)
-        {
-            arrayOfElements.push(node.getElement())
-        }
-        else
-        {
-            arrayOfElements.push(node.getElement());
-        }
+        arrayOfElements.push(node.getElement())
         
         if(node.getChildren().length > 0)
         {
