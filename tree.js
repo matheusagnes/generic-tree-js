@@ -271,26 +271,26 @@ var b = tree.addChild(a, "B");
 var c = tree.addChild(tree.parent(b), "C");
 var d = tree.addChild(b, "D");
 
-console.log("a is root? " + tree.isRoot(a));
-console.log("c is ext.? " + tree.isExternal(c));
-console.log("d is int.? " + tree.isInternal(d));
-console.log("tree size=" + tree.getSize());
+printTo("a is root? " + tree.isRoot(a)+"<br>");
+printTo("c is ext.? " + tree.isExternal(c)+"<br>");
+printTo("d is int.? " + tree.isInternal(d)+"<br>");
+printTo("tree size=" + tree.getSize()+"<br>");
 
-console.log("children of a: " + tree.children(a));
-console.log("tree elements: " + tree.elements());
+printTo("children of a: " + tree.children(a)+"<br>");
+printTo("tree elements: " + tree.elements()+"<br>");
 var node_list = tree.positions();
-console.log("# of nodes=" + node_list.length);
+printTo("# of nodes=" + node_list.length+"<br>");
 
 tree.swapElements(a, b);
-console.log("a now contains " + a);
-console.log("b now contains " + b);
+printTo("a now contains " + a+"<br>");
+printTo("b now contains " + b+"<br>");
         
 var s = tree.replaceElement(c, "CC");
-console.log("c now contains " + c + " but previoulsy had " + s);
+printTo("c now contains " + c + " but previoulsy had " + s+"<br>");
         
-console.log("b has " + tree.children(b).length + " child nodes");
+printTo("b has " + tree.children(b).length + " child nodes"+"<br>");
 tree.removeExternal(d);
-console.log("b now has " + tree.children(b).length + " child nodes");
+printTo("b now has " + tree.children(b).length + " child nodes"+"<br>");
 
 
 
