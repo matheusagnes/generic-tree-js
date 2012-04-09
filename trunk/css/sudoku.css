@@ -74,3 +74,14 @@ body
   height: 250px;
   border: 1px solid;
 }
+
+#text
+{
+	margin-top:25px;
+	width:350px;
+	background-color: whitesmoke;
+    box-shadow: 2px 6px 8px -3px #666666;
+	border-radius: 5px;  
+	padding-left:10px;
+	
+}
