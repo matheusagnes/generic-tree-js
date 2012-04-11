@@ -1,4 +1,3 @@
-//nodeId = 0;
 function Node (value) 
 {
     this.parent = null;
@@ -183,13 +182,8 @@ function Tree(root)
             {   
                 if(father.getChildren()[i] == node)
                 {
-                    father.getChildren()[i] = null;
-                    for(var x = i; x < father.getChildren().length; x++)
-                    {
-                        father.getChildren()[x] = father.getChildren()[x+1];
-                    }
-                    father.getChildren().pop();
-                    this.size--;
+                    father.getChildren().splice(i,1);
+                    
                     return true;
                 }
             }
