@@ -19,6 +19,60 @@
             var totalNums = [56,55,54,53,52,51]; // total of numbers that will hide
             var hideNumsMatrix = new Array();
             
+            function checkPos(id)
+            {
+                var element = $('#'+id);
+                var countTable = 0;
+                var countRow = 0;
+                var countCol = 0;
+                 var row_id = id.split('_')[0]+'_'+id.split('_')[1];                                
+                var col = id.split('_')[2];
+                
+                // get all inputs near the ID of the parent table        
+                element.closest('table').find('input').each(function()  
+                {
+                    if($($(this).get()).val() == element.val())
+                    {
+                        countTable++;
+                        if(countTable >= 2)
+                        {
+                            element.css('background-color','red');
+                            console.log('same number more then one time in table');
+                            return false;
+                        }
+                    }
+                    
+                });
+                
+                $('input[id^='+row_id+']').each(function()
+                {
+                    if($($(this).get()).val() == element.val())
+                    {
+                        countRow++;
+                        if(countRow >= 2)
+                        {
+                            element.css('background-color','red');
+                            console.log('same number more then one time in row');
+                            return false;
+                        }
+                    }
+                });   
+                
+                $('input[id^=field][id$='+col+']').each(function()
+                {
+                    if($($(this).get()).val() == element.val())
+                    {
+                        countCol++;
+                        if(countCol >= 2 )
+                        {
+                            element.css('background-color','red');
+                            console.log('same number more then one time in col');
+                            return false;
+                        }
+                    }
+                });
+            }
+            
             function randomPos(row,col)
             {
                 var random_row, random_col;
@@ -131,7 +185,7 @@
                 }
             }
             
-            function navegate(e,id)
+            function navigate(e,id)
             {
                 var evt = (e) ? e : window.event;
                 var tecla = evt.keyCode;
@@ -245,7 +299,7 @@
                         
                         for (var y = 0; y < 3; y++) 
                         {
-                            $row.append($('<td>').attr('id','col_'+nLinha+'_'+aux_c).append('<input onfocus="$(this).css(\'background-color\', \'lightgreen\'); this.select(); " onBlur = "$(this).css(\'background-color\', \'\');" onkeydown = "navegate(event, this.id);" id="field_'+nLinha+'_'+aux_c+'" type="text" maxlength="1" class="field" readonly="1" >'));		        	
+                            $row.append($('<td>').attr('id','col_'+nLinha+'_'+aux_c).append('<input onfocus="$(this).css(\'background-color\', \'lightgreen\'); this.select(); " onBlur = "if($(this).css(\'background-color\') != \'rgb(255, 0, 0)\'){$(this).css(\'background-color\', \'\');}" onkeyup= "if(evt.keyCode >= 37 && evt.keyCode <= 40){ return false;}checkPos(this.id);"; onkeydown = "navigate(event, this.id);" id="field_'+nLinha+'_'+aux_c+'" type="text" maxlength="1" class="field" readonly="1" >'));		        	
                             aux_c++;
                         }
                         $sudoku_table.append($row);
