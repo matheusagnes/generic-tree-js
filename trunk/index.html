@@ -15,9 +15,62 @@
         <script src="js/jquery.jOrgChart.js"></script>
 
         <script>
-            
-            var totalNums = [56,55,54,53,52,51]; // total of numbers that will hide
+             // procurar no tabuleiro locais obvios que eh so colocar um numero
+             // procurar a posição que tem poucas possibilidades
+             // fazer varios nodos para estas poucas possibilidades e ir testando
+            var totalNums = [20,55,54,53,52,51]; // total of numbers that will hide
             var hideNumsMatrix = new Array();
+            
+            
+            function betterTableToStart()
+            {
+                var cont = 0;
+                var betterTable = new Object();
+                var divGame = $('#game');
+                divGame.find('table').each(function()  
+                {                                                           
+                    betterTable[$($(this).get()).attr('id')] = 0; 
+                    cont = 0;
+                    $(this).find('input').each(function()
+                    {
+                        if(($($(this).get()).val()))
+                        {
+                            cont++;
+                        }
+                       
+                    });
+                    betterTable[$($(this).get()).attr('id')] = cont;
+                    
+                });
+                var maior = 0;
+                var betterTableId = '';
+                for (var i in betterTable)
+                {
+                    if(maior < betterTable[i] && betterTable[i] < 8 )
+                    {
+                        maior = betterTable[i];
+                        betterTableId = i;
+                    }
+                }
+                
+                return betterTableId;
+            }
+            
+            function possibilidadesTabela(id)
+            {
+                var numbers = new Array();
+                
+                
+                
+                var inputsVal = new Array();
+                
+                $('#'+id).find('input').each(function()
+                {
+                    if(($($(this).get()).val()))
+                        inputsVal[$($(this).get()).val()] = true;                    
+                });
+                
+            }
             
             function checkPos(id)
             {
@@ -25,7 +78,7 @@
                 var countTable = 0;
                 var countRow = 0;
                 var countCol = 0;
-                 var row_id = id.split('_')[0]+'_'+id.split('_')[1];                                
+                var row_id = id.split('_')[0]+'_'+id.split('_')[1];                                
                 var col = id.split('_')[2];
                 
                 // get all inputs near the ID of the parent table        
@@ -309,7 +362,7 @@
                 }
             
                 $('#content').append($game);
-                initSudoku(1);
+                initSudoku(0);
                 
                 $('#sudoku_table_0').css('border-top','6px solid black');
                 $('#sudoku_table_0').css('border-left','6px solid black');
@@ -391,18 +444,18 @@
     </div>
 
 
-        <div class="tree">
-            <div id="org_tree">
+    <div class="tree">
+        <div id="org_tree">
 
-            </div>
-
-            <div id="tree" class="orgChart">
-
-            </div>
-			<div id ='text'>
-			</div>
-            
         </div>
+
+        <div id="tree" class="orgChart">
+
+        </div>
+        <div id ='text'>
+        </div>
+
+    </div>
 
 
 </body>
