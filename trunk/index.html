@@ -56,23 +56,50 @@
                 return betterTableId;
             }
             
-            function possibilidadesTabela(id)
+            function arrayPossibilidades(id)
             {
-                var numbers = new Array();
-                
-                
-                
-                var inputsVal = new Array();
-                
-                $('#'+id).find('input').each(function()
+                var element = $('#'+id);
+                var numbersTable = new Object();
+                var aPossibilidades = new Array();
+                if(!element.val())
                 {
-                    if(($($(this).get()).val()))
-                        inputsVal[$($(this).get()).val()] = true;                    
-                });
-                
+                    element.closest('table').find('input').each(function()  
+                    {
+                        if($($(this).get()).val())
+                            numbersTable[$($(this).get()).val()] = $($(this).get()).val();                    
+                    });                                                
+
+                    for (var i = 1; i <= 9; i++)
+                    {
+                        if(!numbersTable[i])
+                        {
+                            if(checkPos(id, i))
+                                aPossibilidades.push(i);
+                        }
+                    }
+                    return aPossibilidades;
+                }
+                else
+                {
+                    return false;
+                }
             }
             
-            function checkPos(id)
+            function solve()
+            {
+                var betterTable = $('#'+betterTableToStart());
+                
+                betterTable.find('input').each(function()  
+                {
+                    //console.log($($(this).get()).val());
+                    if($($(this).get()).val())
+                    {
+                        
+                    }                    
+                });
+            }
+            
+            function checkPos(id, value)
             {
                 var element = $('#'+id);
                 var countTable = 0;
@@ -80,50 +107,75 @@
                 var countCol = 0;
                 var row_id = id.split('_')[0]+'_'+id.split('_')[1];                                
                 var col = id.split('_')[2];
+                var sameNumber = false;
+                
+                var val = value ? value : element.val();
                 
                 // get all inputs near the ID of the parent table        
                 element.closest('table').find('input').each(function()  
                 {
-                    if($($(this).get()).val() == element.val())
+                    if($($(this).get()).val() == val)
                     {
                         countTable++;
                         if(countTable >= 2)
                         {
-                            element.css('background-color','red');
-                            console.log('same number more then one time in table');
-                            return false;
+                            sameNumber = true;                            
                         }
                     }
                     
                 });
                 
-                $('input[id^='+row_id+']').each(function()
+                if(!sameNumber)
                 {
-                    if($($(this).get()).val() == element.val())
+                    $('input[id^='+row_id+']').each(function()
                     {
-                        countRow++;
-                        if(countRow >= 2)
+                        if($($(this).get()).val() == val)
                         {
-                            element.css('background-color','red');
-                            console.log('same number more then one time in row');
-                            return false;
+                            countRow++;
+                            if(countRow >= 2)
+                            {
+                                sameNumber = true;
+                            }
                         }
-                    }
-                });   
+                    });   
+                }
+                if(!sameNumber)
+                {
+                    $('input[id^=field][id$='+col+']').each(function()
+                    {
+                        if($($(this).get()).val() == val)
+                        {
+                            countCol++;
+                            if(countCol >= 2 )
+                            {                                
+                                sameNumber = true;
+                            }
+                        }
+                    });
+                }
                 
-                $('input[id^=field][id$='+col+']').each(function()
+                if(sameNumber)
                 {
-                    if($($(this).get()).val() == element.val())
-                    {
-                        countCol++;
-                        if(countCol >= 2 )
-                        {
-                            element.css('background-color','red');
-                            console.log('same number more then one time in col');
-                            return false;
-                        }
+                    if(!value)
+                    {                                            
+                        element.attr('class', 'field backGroundRed');
                     }
-                });
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!value)
+                    {        
+                        element.attr('class', 'field backGroundWhite');
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
             }
             
             function randomPos(row,col)
@@ -352,7 +404,7 @@
                         
                         for (var y = 0; y < 3; y++) 
                         {
-                            $row.append($('<td>').attr('id','col_'+nLinha+'_'+aux_c).append('<input onfocus="$(this).css(\'background-color\', \'lightgreen\'); this.select(); " onBlur = "if($(this).css(\'background-color\') != \'rgb(255, 0, 0)\'){$(this).css(\'background-color\', \'\');}" onkeyup= "if(evt.keyCode >= 37 && evt.keyCode <= 40){ return false;}checkPos(this.id);"; onkeydown = "navigate(event, this.id);" id="field_'+nLinha+'_'+aux_c+'" type="text" maxlength="1" class="field" readonly="1" >'));		        	
+                            $row.append($('<td>').attr('id','col_'+nLinha+'_'+aux_c).append('<input onfocus=" if($(this).attr(\'class\') != \'field backGroundRed\'){$(this).attr(\'class\', \'field backGroundLightGreen\');} this.select(); " onBlur = "if($(this).attr(\'class\') != \'field backGroundRed\'){$(this).attr(\'class\', \'field backGroundWhite\');}" onkeyup= "if(evt.keyCode >= 37 && evt.keyCode <= 40){ return false;}checkPos(this.id,null);"; onkeydown = "navigate(event, this.id);" id="field_'+nLinha+'_'+aux_c+'" type="text" maxlength="1" class="field" readonly="1" >'));		        	
                             aux_c++;
                         }
                         $sudoku_table.append($row);
