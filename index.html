@@ -22,6 +22,10 @@
             var hideNumsMatrix = new Array();
             
             
+            var tree;
+            
+            
+            
             function betterTableToStart()
             {
                 var cont = 0;
@@ -46,7 +50,7 @@
                 var betterTableId = '';
                 for (var i in betterTable)
                 {
-                    if(maior < betterTable[i] && betterTable[i] < 8 )
+                    if(maior < betterTable[i] && betterTable[i] < 9 )
                     {
                         maior = betterTable[i];
                         betterTableId = i;
@@ -77,30 +81,92 @@
                                 aPossibilidades.push(i);
                         }
                     }
-                    return aPossibilidades;
+                    if(aPossibilidades.length > 0)                        
+                        return aPossibilidades;
                 }
-                else
-                {
-                    return false;
-                }
+                return false;
+                
             }
             
-            function solve()
-            {
+            function solve(tabuleiro,parent)
+            {                              
+                $('#tabuleiro').html(tabuleiro);
+                
                 var betterTable = $('#'+betterTableToStart());
                 
                 betterTable.find('input').each(function()  
-                {
-                    //console.log($($(this).get()).val());
-                    if($($(this).get()).val())
+                {                    
+                    if(!$($(this).get()).val())
                     {
-                        
+                        preenchePos($($(this).get()).attr('id'), parent);
                     }                    
                 });
             }
             
+            function solveGame()
+            {
+                var obj = new Object();
+                obj['value'] = 'R';
+                obj['sudoku'] = $('#game').clone(); 
+                
+                var node = new Node(obj);
+                tree = new Tree(node);
+                
+                solve(obj['sudoku'] ,tree.root);
+            }
+            
+            function preenchePos(id, parent)
+            {
+                var possilidades = arrayPossibilidades(id);
+                
+                if(possilidades)
+                {   
+                    if(possilidades.length == 1)
+                    {
+                        $('#tabuleiro').html($('#game').clone());
+                        if(checkPos(id,possilidades[0]), $('#game').clone())
+                        {
+                            $('#'+id).val(possilidades[0]);
+                            var obj = new Object();      
+
+                            obj['value'] = id+'-'+possilidades[0];
+                            obj['sudoku'] = $('#game').clone();                    
+
+
+                            var new_parent = tree.addChild(parent, obj);
+                            solve(obj['sudoku'], new_parent );
+                        }
+                        
+                    }
+                    else
+                    {                    
+                        for(var i = 0; i < possilidades.length ;i++)
+                        {
+                            $('#tabuleiro').html($('#game').clone());
+                            if(checkPos(id,possilidades[i]))
+                            {
+                                var obj = new Object();
+
+                                $('#'+id).val(possilidades[i]);
+
+                                obj['value'] = id+'-'+possilidades[i];
+                                obj['sudoku'] = $('#game').clone();                    
+                                
+                                var new_parent = tree.addChild(parent, obj);
+                                solve(obj['sudoku'], new_parent );
+                            }
+                        }
+                    }
+                }
+                else
+                {                    
+                    return false;
+                }
+            }
+            
             function checkPos(id, value)
             {
+                
                 var element = $('#'+id);
                 var countTable = 0;
                 var countRow = 0;
@@ -335,7 +401,7 @@
                     hideNumsMatrix[x] = new Array();
                 }
                 fillSudoku();
-                hideNums(level);
+                hideNums(level);                
             }
             
             function solveSudoku()
@@ -413,7 +479,7 @@
             	
                 }
             
-                $('#content').append($game);
+                $('#tabuleiro').append($game);
                 initSudoku(0);
                 
                 $('#sudoku_table_0').css('border-top','6px solid black');
@@ -459,6 +525,8 @@
     <div id='content'>	
 
 
+        <div style="width: 460px; margin-left: 50px;margin-top: 10px;float: left;" id="tabuleiro"> </div>
+        
         <div id="menu">
 
             <div class="categoria">
