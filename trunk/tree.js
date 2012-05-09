@@ -80,11 +80,11 @@ function Tree(root)
         if(node == this.root)
         {
             x = '<ul id="org" style="display:none;">';
-            x += '<li>'+ '<div class="element">'+node.element+'</div>';
+            x += '<li>'+ '<div class="element">'+node.element['value']+'</div>';
         }
         else
         {
-            x += '<li>'+ '<div class="element">'+node.element+'</div>';
+            x += '<li>'+ '<div class="element">'+node.element['value']+'</div>';
         }
         
         if(node.getChildren().length > 0)
@@ -243,35 +243,35 @@ function Tree(root)
     
 }
 
-
-var a = new Node("A");
-tree = new Tree(a);
-
-var b = tree.addChild(a, "B");
-var c = tree.addChild(tree.parent(b), "C");
-var d = tree.addChild(b, "D");
-
-printTo("a is root? " + tree.isRoot(a)+"<br>");
-printTo("c is ext.? " + tree.isExternal(c)+"<br>");
-printTo("d is int.? " + tree.isInternal(d)+"<br>");
-printTo("tree size=" + tree.getSize()+"<br>");
-
-printTo("children of a: " + tree.children(a)+"<br>");
-printTo("tree elements: " + tree.elements()+"<br>");
-var node_list = tree.positions();
-printTo("# of nodes=" + node_list.length+"<br>");
-
-tree.swapElements(a, b);
-printTo("a now contains " + a+"<br>");
-printTo("b now contains " + b+"<br>");
-        
-var s = tree.replaceElement(c, "CC");
-printTo("c now contains " + c + " but previoulsy had " + s+"<br>");
-        
-printTo("b has " + tree.children(b).length + " child nodes"+"<br>");
-tree.removeExternal(d);
-printTo("b now has " + tree.children(b).length + " child nodes"+"<br>");
-
-
-
-tree.showTree();
+//
+//var a = new Node("A");
+//tree = new Tree(a);
+//
+//var b = tree.addChild(a, "B");
+//var c = tree.addChild(tree.parent(b), "C");
+//var d = tree.addChild(b, "D");
+//
+//printTo("a is root? " + tree.isRoot(a)+"<br>");
+//printTo("c is ext.? " + tree.isExternal(c)+"<br>");
+//printTo("d is int.? " + tree.isInternal(d)+"<br>");
+//printTo("tree size=" + tree.getSize()+"<br>");
+//
+//printTo("children of a: " + tree.children(a)+"<br>");
+//printTo("tree elements: " + tree.elements()+"<br>");
+//var node_list = tree.positions();
+//printTo("# of nodes=" + node_list.length+"<br>");
+//
+//tree.swapElements(a, b);
+//printTo("a now contains " + a+"<br>");
+//printTo("b now contains " + b+"<br>");
+//        
+//var s = tree.replaceElement(c, "CC");
+//printTo("c now contains " + c + " but previoulsy had " + s+"<br>");
+//        
+//printTo("b has " + tree.children(b).length + " child nodes"+"<br>");
+//tree.removeExternal(d);
+//printTo("b now has " + tree.children(b).length + " child nodes"+"<br>");
+//
+//
+//
+//tree.showTree();
