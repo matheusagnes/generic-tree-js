@@ -18,9 +18,10 @@
             // procurar no tabuleiro locais obvios que eh so colocar um numero
             // procurar a posição que tem poucas possibilidades
             // fazer varios nodos para estas poucas possibilidades e ir testando
-            var totalNums = [20,55,54,53,52,51]; // total of numbers that will hide
+            var totalNums = [25,55,54,53,52,51]; // total of numbers that will hide
             var hideNumsMatrix = new Array();
-            
+            var completado = false;
+            var game_certo;
             
             var tree;
             
@@ -90,20 +91,78 @@
             }
             
             function solve(tabuleiro,parent)
-            {                              
+            {    
+                //console.log(todosPreenchidos());    
                 $('#tabuleiro').html(tabuleiro);
-                
-                var betterTable = $('#'+betterTableToStart());
-                
-                tabuleiro.find('input').each(function()  
-                {                    
-                    if(!$($(this).get()).val())
-                    {
-                        preenchePos($($(this).get()).attr('id'), parent);
-                    }                    
-                });
+                console.log(completado)
+                if(completado == true )console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'); 
+                alert(1);
+                if(todosPreenchidos() === false && completado == false)
+                {   
+                                      
+                    //var betterTable = $('#'+betterTableToStart()); 
+                    var betterTable = $('#game');                 
+                    var size = betterTable.find('input').size();
+
+                    for(var x = 0; x < size; x++) 
+                    {   
+                        var field = betterTable.find('input:eq('+x+')'); 
+                        
+                        if(!field.val())
+                        {
+                            var id = field.attr('id');
+                           
+                            var possilidades = arrayPossibilidades(id);
+
+                            if(possilidades)
+                            {  
+                                var pode = false;
+                                                  
+                                for(var i = 0; i < possilidades.length ;i++)
+                                {
+                                    $('#tabuleiro').html(tabuleiro);
+                                
+                                    if(checkPos(id,possilidades[i]))
+                                    {                                        
+                                        $('#'+id).val(possilidades[i]);
+
+                                        var obj = new Object();
+                                        obj['value'] = id+'-'+possilidades[i];
+                                        obj['sudoku'] = $('#game').clone();                    
+                                        pode =true;
+                                        var new_parent = tree.addChild(parent, obj);
+                                        solve(obj['sudoku'], new_parent );                                
+                                    }                                                                            
+                                }                           
+                            }
+                        }                    
+                    }
+                    $('#tabuleiro').html(tabuleiro); 
+                    completado = todosPreenchidos();               
+                 }                 
+                else
+                {
+                   console.log('feito');
+                   completado = true;                                     
+                   return true;               
+                }               
             }
             
+            function todosPreenchidos()
+            {
+                var todosPreenchidos = true;
+                $('#game').find('input').each(function()  
+                {
+                    if(!$($(this).get()).val())
+                    {
+                        todosPreenchidos = false;
+                        return false;                                                
+                    }    
+                });
+
+                return todosPreenchidos;
+            }
+
             function solveGame()
             {
                 var obj = new Object();
@@ -114,6 +173,7 @@
                 tree = new Tree(node);
                 
                 solve(obj['sudoku'] ,tree.root);
+                
             }
             
             function preenchePos(id, parent)
@@ -158,12 +218,7 @@
                                 
                                 var new_parent = tree.addChild(parent, obj);
                                 solve(obj['sudoku'], new_parent );
-                            }
-                            else
-                            {
-                                return false;
-                            }
-                            
+                            }                                                      
                         }
                     }
                 }
