@@ -18,7 +18,7 @@
             // procurar no tabuleiro locais obvios que eh so colocar um numero
             // procurar a posição que tem poucas possibilidades
             // fazer varios nodos para estas poucas possibilidades e ir testando
-            var totalNums = [25,55,54,53,52,51]; // total of numbers that will hide
+            var totalNums = [35,55,54,53,52,51]; // total of numbers that will hide
             var hideNumsMatrix = new Array();
             var completado = false;
             var game_certo;
@@ -93,19 +93,20 @@
             function solve(tabuleiro,parent)
             {    
                 //console.log(todosPreenchidos());    
-                $('#tabuleiro').html(tabuleiro);
-                console.log(completado)
-                if(completado == true )console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'); 
-                alert(1);
-                if(todosPreenchidos() === false && completado == false)
-                {   
-                                      
+                
+                
+                if(todosPreenchidos() == true )completado=true;
+                
+                if(completado == false)
+                if(todosPreenchidos() == false && completado == false)
+                {                                         
                     //var betterTable = $('#'+betterTableToStart()); 
                     var betterTable = $('#game');                 
                     var size = betterTable.find('input').size();
 
                     for(var x = 0; x < size; x++) 
-                    {   
+                    {
+                        if(todosPreenchidos() == true ){completado=true; x=size;}   
                         var field = betterTable.find('input:eq('+x+')'); 
                         
                         if(!field.val())
@@ -121,7 +122,9 @@
                                 for(var i = 0; i < possilidades.length ;i++)
                                 {
                                     $('#tabuleiro').html(tabuleiro);
-                                
+
+                                    
+
                                     if(checkPos(id,possilidades[i]))
                                     {                                        
                                         $('#'+id).val(possilidades[i]);
@@ -137,8 +140,7 @@
                             }
                         }                    
                     }
-                    $('#tabuleiro').html(tabuleiro); 
-                    completado = todosPreenchidos();               
+                            
                  }                 
                 else
                 {
