@@ -18,11 +18,10 @@
             // procurar no tabuleiro locais obvios que eh so colocar um numero
             // procurar a posição que tem poucas possibilidades
             // fazer varios nodos para estas poucas possibilidades e ir testando
-            var totalNums = [35,55,54,53,52,51]; // total of numbers that will hide
+            var totalNums = [25,55,54,53,52,51]; // total of numbers that will hide
             var hideNumsMatrix = new Array();
             var completado = false;
-            var game_certo;
-            
+
             var tree;
             
             function getMatrix()
@@ -32,27 +31,14 @@
                 var contCol = 0;
                 var matrix = new Array();
                 var val = null;
-                for(var x = 0; x < game.find('input').size(); x++) 
+                for(var x =0; x < 9 ; x++)
                 {
-                    
-                    
-                    var val = game.find('input:eq('+x+')').val();
-                    
-                    if(x%9==0 || x == 0)
-                    {   contRow++;                     
-                        matrix[contRow] = new Array();
-                                                
-                    }
-                    if(contCol == 9)
-                    {
-                        contCol=0;
-                    }    
-                        
-                    
-                    matrix[contRow][contCol] = val;   
-                    
-                    contCol++;
-                }
+                    matrix[x] = new Array();
+                    for(var y=0; y < 9; y++)
+                    {   
+                        matrix[x][y] = $('#field_'+x+'_'+y).val();
+                    }                
+                }    
                 return matrix;
             }
             
@@ -62,12 +48,48 @@
                 var numbersTable = new Object();
                 if(!matrix[pos['x']][pos['y']])
                 {
-                    for (var i = 1; i <= 9; i++)
+                    if(pos['x'] >= 3 && pos['x'] < 6)
                     {
-                        if(matrix[pos['x']][i])
-                            numbersTable[i] = matrix[x][i];
+                        aux_l = 3;
                     }
+                    if(pos['x']>5)
+                    {
+                        aux_l = 6;				
+                    }
+				
+                    aux_c = 0;
+                    for (var x = 0; x < 3; x++)
+                    {
+                        nLinha = x;
+                        if(pos['x'] >= 3)
+                        {							
+                            nLinha = aux_l;					
+                            aux_l++;
+                        }						                                                
+                        
+                        if(pos['y'] <= 2)
+                        {                    
+                            var yMin = 0;
+                            var yMax = 2;
+                        }
+                        else if(pos['y'] >= 3 && pos['y'] <= 5 )
+                        {
+                            var yMin = 3;
+                            var yMax = 5;
+                        }
+                        else
+                        {
+                            var yMin = 6;
+                            var yMax = 8;
+                        }
 
+                        for (var y = yMin; y <= yMax; y++) 
+                        {                            
+                            numbersTable[matrix[nLinha][y]] = matrix[nLinha][y];	        	
+                            aux_c++;
+                        }
+                    }
+                    
                     for (var i = 1; i <= 9; i++)
                     {
                         if(!numbersTable[i])
@@ -76,7 +98,7 @@
                                 aPossibilidades.push(i);
                         }
                     }
-                    if(aPossibilidades.length > 0)                        
+                    if(aPossibilidades.length > 0)                       
                         return aPossibilidades;
                 }
                 return false;
@@ -95,121 +117,76 @@
                                                        
                 for (var i = 0; i < 9; i++)
                 {
-                    if(matrix[pos['x']][i] == val)
-                    {
-                        countTable++;
-                        if(countTable >= num)
-                        {                  
-                            console.log('table');
-                            return false;                            
-                        }
-                    }
-                }
-                
-                if(pos['x'] <= 2)
-                {                    
-                    var yMin = 0;
-                    var yMax = 2;
-                }
-                else if(pos['x'] >= 3 && pos['x'] <= 5 )
-                {
-                    var yMin = 3;
-                    var yMax = 5;
-                }
-                else
-                {
-                    var yMin = 6;
-                    var yMax = 8;
-                }
-                
-                for (var i = 0; i < 9; i++)
-                {
                     if(matrix[i][pos['y']] == val)
                     {
                         countCol++;
                         if(countCol >= num)
-                        {               
-                            console.log('col');
+                        {                                              
                             return false;                            
                         }
                     }
                 }
                 
-                
-                
-                if(pos['y'] <= 2)
-                {                    
-                    var yMin = 0;
-                    var yMax = 2;
-                }
-                else if(pos['y'] >= 3 && pos['y'] <= 5 )
+                for (var i = 0; i < 9; i++)
                 {
-                    var yMin = 3;
-                    var yMax = 5;
+                    if(matrix[pos['x']][i] == val)
+                    {
+                        countRow++;
+                        if(countRow >= num)
+                        {                  
+                            return false;                            
+                        }
+                    }
                 }
-                else
+    
+                if(pos['x'] >= 3 && pos['x'] < 6)
                 {
-                    var yMin = 6;
-                    var yMax = 8;
+                    aux_l = 3;
                 }
-                
-                               
-                if(pos['x'] <=2)
-                {                   
+                if(pos['x']>5)
+                {
+                    aux_l = 6;				
+                }
+			
+                aux_c = 0;
+                for (var x = 0; x < 3; x++)
+                {
+                    nLinha = x;
+                    if(pos['x'] >= 3)
+                    {							
+                        nLinha = aux_l;					
+                        aux_l++;
+                    }						                                                
                     
-                    for (var i = 0; i <= 2; i++)
-                    {
-                        for (var j = yMin; j <= yMax; j++)
-                        { 
-                            if(matrix[i][j] == val)
-                            {
-                                countRow++;
-                                if(countRow >= num)
-                                {         
-                                    console.log('row');
-                                    return false;                            
-                                }
-                            }
-                        }
+                    if(pos['y'] <= 2)
+                    {                    
+                        var yMin = 0;
+                        var yMax = 2;
                     }
-                }
-                else if(pos['x'] >= 3 && pos['x'] <= 5 )
-                {
-                    for (var i = 3; i <= 5; i++)
+                    else if(pos['y'] >= 3 && pos['y'] <= 5 )
                     {
-                        for (var j = yMin; j <= yMax; j++)
-                        { 
-                            if(matrix[i][j] == val)
-                            {
-                                countRow++;
-                                if(countRow >= num)
-                                {  
-                                    console.log('row');
-                                    return false;                            
-                                }
-                            }
-                        }
+                        var yMin = 3;
+                        var yMax = 5;
                     }
-                }
-                else
-                {
-                    for (var i = 6; i <= 8; i++)
+                    else
                     {
-                        for (var j = yMin; j <= yMax; j++)
-                        { 
-                            if(matrix[i][j] == val)
-                            {
-                                countRow++;
-                                if(countRow >= num)
-                                {     
-                                    console.log('row');
-                                    return false;                            
-                                }
-                            }
-                        }
+                        var yMin = 6;
+                        var yMax = 8;
                     }
-                }
-                
+
+                    for (var y = yMin; y <= yMax; y++) 
+                    {
+                        if(matrix[nLinha][y] == val)
+                        {
+                            countTable++;
+                            if(countTable >= num)
+                            {                  
+                                return false;                            
+                            }
+                        }                        	        	
+                        aux_c++;                        
+                    }
+                }                               
                 return true;
             }
             
@@ -247,9 +224,8 @@
                 return betterTableId;
             }
             
-            function arrayPossibilidades(id,sudoku)
+            function arrayPossibilidades(id)
             {
-                $('#tabuleiro').html(sudoku);
                 var element = $('#'+id);
                 var numbersTable = new Object();
                 var aPossibilidades = new Array();
@@ -281,12 +257,12 @@
                 //if(todosPreenchidos() == true ){completado=true; x=size;}     
                 if(completado == false)
                 {                                         
-                    var betterTable = $('#game');                 
+                    var betterTable = tabuleiro;                 
                     var size = betterTable.find('input').size();
 
                     for(var x = 0; x < size; x++) 
                     {
-                        if(todosPreenchidos() == true || completado == true){completado=true; x=size;}   
+                        if(todosPreenchidos(tabuleiro) == true || completado == true){completado=true; x=size;}   
                         var field = betterTable.find('input:eq('+x+')'); 
                         
                         if(!field.val())
@@ -294,9 +270,9 @@
                             var id = field.attr('id');
                            
                             var possilidades = arrayPossibilidades(id);
-
+                            
                             if(possilidades)
-                            {  
+                            {   console.log(possilidades);
                                 for(var i = 0; i < possilidades.length ;i++)
                                 {
                                     $('#tabuleiro').html(tabuleiro);
@@ -309,7 +285,7 @@
                                         obj['value'] = id+'-'+possilidades[i];
                                         obj['sudoku'] = $('#game').clone();                    
                                         var new_parent = tree.addChild(parent, obj);
-                                        solve(obj['sudoku'], new_parent );                                
+                                        solve($('#game').clone(), new_parent );                                
                                     }                                                                            
                                 }                           
                             }
@@ -318,15 +294,16 @@
                 }                 
                 else
                 {                   
-                    completado = true;                                     
+                    completado = true;
+                    console.log('completo else');                                     
                     return true;               
                 }               
             }
             
-            function todosPreenchidos()
+            function todosPreenchidos(tabuleiro)
             {
                 var todosPreenchidos = true;
-                $('#game').find('input').each(function()  
+                tabuleiro.find('input').each(function()  
                 {
                     if(!$($(this).get()).val())
                     {
@@ -337,71 +314,121 @@
 
                 return todosPreenchidos;
             }
-
+            
             function solveGame()
             {
                 var obj = new Object();
                 obj['value'] = 'R';
-                obj['sudoku'] = $('#game').clone(); 
+                //obj['sudoku'] = $('#game').clone(); 
                 
                 var node = new Node(obj);
                 tree = new Tree(node);
                 
-                solve(obj['sudoku'] ,tree.root);
+                solve($('#game').clone() ,tree.root);
                 
             }
-            
-            function preenchePos(id, parent)
+
+            function solveGameMatrix()
             {
-                var possilidades = arrayPossibilidades(id);
-                console.log(id, possilidades);
-                if(possilidades)
+                var obj = new Object();
+                obj['value'] = 'R';
+                obj['matrix'] = getMatrix(); 
+                
+                var node = new Node(obj);
+                tree = new Tree(node);
+                
+                solveMatrix(getMatrix(),tree.root);                                        
+            }
+
+            function solveMatrix(matrix, parent)
+            {   
+                
+                todosPreenchidosMatrix(matrix);
+                if(completado == true)
                 {   
-                    if(possilidades.length == 1)
+                    completaGame(matrix);
+                    matrix[33][33] = 1;
+                }
+                if(completado == false)
+                {   
+                    for(var x =0; x < 9; x++) 
                     {
-                        if(checkPos(id,possilidades[0]))
+
+                        for(var y =0 ; y < 9; y++)
+                        {                                                                                                                
+                            if(matrix[x][y] == '')
+                            {                                
+                                var pos = new Object();
+                                pos['x'] = x;
+                                pos['y'] = y;    
+                                var possilidades = arrayPossibilidadesMatrix(pos,matrix);
+
+                                if(possilidades)
+                                {           
+                                                             
+                                    for(var i = 0; i < possilidades.length ;i++)
+                                    {   
+                                        var new_matrix = matrix;                                 
+                                        new_matrix[x][y] = possilidades[i];        
+                                              alert(1);
+                                        completaGame(matrix);
+                                        var obj = new Object();
+                                        obj['value'] = possilidades[i];
+                                        obj['matrix'] = new_matrix;  
+                                                     
+                                        todosPreenchidosMatrix(matrix);
+                                        if(completado == true)
+                                        {   
+                                            completaGame(matrix);
+                                            matrix[33][33] = 1;
+                                        }                                                                                                           
+                                        if(completado == false)
+                                        {                                                                                        
+                                            var new_parent = tree.addChild(parent, obj);
+                                            solveMatrix(new_matrix, new_parent); 
+                                        }                                       
+                                    }                           
+                                }
+                            }
+                        }                    
+                    }                            
+                }                 
+                else
+                {   
+                    console.log('completo else 2');               
+                    return true;               
+                }             
+            }
+
+            function todosPreenchidosMatrix(matrix)
+            {                
+                for(var x = 0; x < 9; x++) 
+                {
+                    for(var y = 0 ; y < 9; y++)
+                    {                        
+                        if(!matrix[x][y])
                         {
-                            $('#'+id).val(possilidades[0]);
-                            $('#tabuleiro').html($('#game').clone());
-                            var obj = new Object();      
-
-                            obj['value'] = id+'-'+possilidades[0];
-                            obj['sudoku'] = $('#game').clone();                    
-
-
-                            var new_parent = tree.addChild(parent, obj);
-                            solve(obj['sudoku'], new_parent );
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                       
-                    }
-                    else
-                    {                    
-                        for(var i = 0; i < possilidades.length ;i++)
-                        {
-                            if(checkPos(id,possilidades[i]))
-                            {
-                                var obj = new Object();
-
-                                $('#'+id).val(possilidades[i]);
-                                
-                                obj['value'] = id+'-'+possilidades[i];
-                                obj['sudoku'] = $('#game').clone();                    
-                                
-                                var new_parent = tree.addChild(parent, obj);
-                                solve(obj['sudoku'], new_parent );
-                            }                                                      
-                        }
+                            return false;  
+                        }                        
                     }
                 }
-                else
-                {                             
-                    return false;
-                }                              
+                completado = true;
+                console.log('completado é true');
+                return true;
             }
+            
+            function completaGame(matrix)
+            {
+                for(var x = 0; x < 9; x++) 
+                {
+                    for(var y = 0 ; y < 9; y++)
+                    {                        
+                        $('#field_'+x+'_'+y).val(matrix[x][y]);                        
+                    }
+                }
+            }
+
+
             
             function checkPos(id, value)
             {
@@ -634,6 +661,7 @@
             function initSudoku(level)
             {
                 for (var x = 0; x < 9; x++)
+
                 {
                     hideNumsMatrix[x] = new Array();
                 }
