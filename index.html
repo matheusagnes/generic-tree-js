@@ -25,7 +25,193 @@
             
             var tree;
             
+            function getMatrix()
+            {
+                var game = $('#game');                 
+                var contRow = -1;
+                var contCol = 0;
+                var matrix = new Array();
+                var val = null;
+                for(var x = 0; x < game.find('input').size(); x++) 
+                {
+                    
+                    
+                    var val = game.find('input:eq('+x+')').val();
+                    
+                    if(x%9==0 || x == 0)
+                    {   contRow++;                     
+                        matrix[contRow] = new Array();
+                                                
+                    }
+                    if(contCol == 9)
+                    {
+                        contCol=0;
+                    }    
+                        
+                    
+                    matrix[contRow][contCol] = val;   
+                    
+                    contCol++;
+                }
+                return matrix;
+            }
             
+            function arrayPossibilidadesMatrix(pos,matrix)
+            {                                          
+                var aPossibilidades = new Array();
+                var numbersTable = new Object();
+                if(!matrix[pos['x']][pos['y']])
+                {
+                    for (var i = 1; i <= 9; i++)
+                    {
+                        if(matrix[pos['x']][i])
+                            numbersTable[i] = matrix[x][i];
+                    }
+
+                    for (var i = 1; i <= 9; i++)
+                    {
+                        if(!numbersTable[i])
+                        {
+                            if(checkPosMatrix(pos, i, matrix))
+                                aPossibilidades.push(i);
+                        }
+                    }
+                    if(aPossibilidades.length > 0)                        
+                        return aPossibilidades;
+                }
+                return false;
+                
+            }
+            
+            function checkPosMatrix(pos, value,matrix)
+            {                               
+                var countTable = 0;
+                var countRow = 0;
+                var countCol = 0
+                
+                var val = value;
+                var num = 1;
+                
+                                                       
+                for (var i = 0; i < 9; i++)
+                {
+                    if(matrix[pos['x']][i] == val)
+                    {
+                        countTable++;
+                        if(countTable >= num)
+                        {                  
+                            console.log('table');
+                            return false;                            
+                        }
+                    }
+                }
+                
+                if(pos['x'] <= 2)
+                {                    
+                    var yMin = 0;
+                    var yMax = 2;
+                }
+                else if(pos['x'] >= 3 && pos['x'] <= 5 )
+                {
+                    var yMin = 3;
+                    var yMax = 5;
+                }
+                else
+                {
+                    var yMin = 6;
+                    var yMax = 8;
+                }
+                
+                for (var i = 0; i < 9; i++)
+                {
+                    if(matrix[i][pos['y']] == val)
+                    {
+                        countCol++;
+                        if(countCol >= num)
+                        {               
+                            console.log('col');
+                            return false;                            
+                        }
+                    }
+                }
+                
+                
+                
+                if(pos['y'] <= 2)
+                {                    
+                    var yMin = 0;
+                    var yMax = 2;
+                }
+                else if(pos['y'] >= 3 && pos['y'] <= 5 )
+                {
+                    var yMin = 3;
+                    var yMax = 5;
+                }
+                else
+                {
+                    var yMin = 6;
+                    var yMax = 8;
+                }
+                
+                               
+                if(pos['x'] <=2)
+                {                   
+                    
+                    for (var i = 0; i <= 2; i++)
+                    {
+                        for (var j = yMin; j <= yMax; j++)
+                        { 
+                            if(matrix[i][j] == val)
+                            {
+                                countRow++;
+                                if(countRow >= num)
+                                {         
+                                    console.log('row');
+                                    return false;                            
+                                }
+                            }
+                        }
+                    }
+                }
+                else if(pos['x'] >= 3 && pos['x'] <= 5 )
+                {
+                    for (var i = 3; i <= 5; i++)
+                    {
+                        for (var j = yMin; j <= yMax; j++)
+                        { 
+                            if(matrix[i][j] == val)
+                            {
+                                countRow++;
+                                if(countRow >= num)
+                                {  
+                                    console.log('row');
+                                    return false;                            
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (var i = 6; i <= 8; i++)
+                    {
+                        for (var j = yMin; j <= yMax; j++)
+                        { 
+                            if(matrix[i][j] == val)
+                            {
+                                countRow++;
+                                if(countRow >= num)
+                                {     
+                                    console.log('row');
+                                    return false;                            
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                return true;
+            }
             
             function betterTableToStart()
             {
@@ -92,21 +278,15 @@
             
             function solve(tabuleiro,parent)
             {    
-                //console.log(todosPreenchidos());    
-                
-                
-                if(todosPreenchidos() == true )completado=true;
-                
+                //if(todosPreenchidos() == true ){completado=true; x=size;}     
                 if(completado == false)
-                if(todosPreenchidos() == false && completado == false)
                 {                                         
-                    //var betterTable = $('#'+betterTableToStart()); 
                     var betterTable = $('#game');                 
                     var size = betterTable.find('input').size();
 
                     for(var x = 0; x < size; x++) 
                     {
-                        if(todosPreenchidos() == true ){completado=true; x=size;}   
+                        if(todosPreenchidos() == true || completado == true){completado=true; x=size;}   
                         var field = betterTable.find('input:eq('+x+')'); 
                         
                         if(!field.val())
@@ -117,36 +297,29 @@
 
                             if(possilidades)
                             {  
-                                var pode = false;
-                                                  
                                 for(var i = 0; i < possilidades.length ;i++)
                                 {
                                     $('#tabuleiro').html(tabuleiro);
 
-                                    
-
-                                    if(checkPos(id,possilidades[i]))
+                                    //if(checkPos(id,possilidades[i]))
                                     {                                        
                                         $('#'+id).val(possilidades[i]);
 
                                         var obj = new Object();
                                         obj['value'] = id+'-'+possilidades[i];
                                         obj['sudoku'] = $('#game').clone();                    
-                                        pode =true;
                                         var new_parent = tree.addChild(parent, obj);
                                         solve(obj['sudoku'], new_parent );                                
                                     }                                                                            
                                 }                           
                             }
                         }                    
-                    }
-                            
-                 }                 
+                    }                            
+                }                 
                 else
-                {
-                   console.log('feito');
-                   completado = true;                                     
-                   return true;               
+                {                   
+                    completado = true;                                     
+                    return true;               
                 }               
             }
             
