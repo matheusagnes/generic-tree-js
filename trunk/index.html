@@ -21,34 +21,34 @@
             var totalNums = [25,55,54,53,52,51]; // total of numbers that will hide
             var hideNumsMatrix = new Array();
             var completado = false;
-
+            var cont = 0;
             var tree;
             
             function getMatrix()
             {               
-                var matrix = new Array();
+                var matrixIni = new Array();
                
                 for(var x =0; x < 9 ; x++)
                 {
-                    matrix[x] = new Array();
+                    matrixIni[x] = new Array();
                     for(var y=0; y < 9; y++)
                     {   if($('#field_'+x+'_'+y).val())
-                            matrix[x][y] = parseInt($('#field_'+x+'_'+y).val());
+                            matrixIni[x][y] = parseInt($('#field_'+x+'_'+y).val());
                         else
-                            matrix[x][y] = null;
+                            matrixIni[x][y] = null;
                     }                
                 }    
-                return matrix;
+                return matrixIni;
             }
             
-            function arrayPossibilidadesMatrix(pos,matrix)
+            function arrayPossibilidadesMatrix(pos,matrixPoss)
             {                                          
                 var aPossibilidades = new Array();
                 var numbersTable = new Object();
                 
                 var nLinha = 0;
                 var aux_l = 0;
-                if(!matrix[pos['x']][pos['y']])
+                if(!matrixPoss[pos['x']][pos['y']])
                 {
                     if(pos['x'] >= 3 && pos['x'] < 6)
                     {
@@ -87,31 +87,33 @@
 
                         for (var y = yMin; y <= yMax; y++) 
                         {   
-                            if(matrix[nLinha][y])
-                            numbersTable[matrix[nLinha][y]] = matrix[nLinha][y];	        	
+                            if(matrixPoss[nLinha][y])
+                            numbersTable[matrixPoss[nLinha][y]] = matrixPoss[nLinha][y];	        	
                             
                         }
-                    }
                     
+                    }
+                    ///console.log(numbersTable);
                     for (var i = 1; i <= 9; i++)
                     {
                         if(!numbersTable[i])
-                        {
-                            if(checkPosMatrix(pos, i, matrix))
+                        {                           
+                            if(checkPosMatrix(pos, i, matrixPoss))
                                 aPossibilidades.push(i);
                         }
                     }
-
                     if(aPossibilidades.length > 0)
                     {  
+                        
                         return aPossibilidades;
-                    }else return false;
+                    }
+                    return false;
                 }
                 return false;
                 
             }
             
-            function checkPosMatrix(pos, value,matrix)
+            function checkPosMatrix(pos, value,matrixPos)
             {                               
                 var countTable = 0;
                 var countRow = 0;
@@ -125,7 +127,7 @@
                                                        
                 for (var i = 0; i < 9; i++)
                 {
-                    if(matrix[i][pos['y']] == val)
+                    if(matrixPos[i][pos['y']] == val)
                     {
                         countCol++;
                         if(countCol >= num)
@@ -137,13 +139,9 @@
                 
                 for (var i = 0; i < 9; i++)
                 {
-                    if(matrix[pos['x']][i] == val)
+                    if(matrixPos[pos['x']][i] == val)
                     {
-                        countRow++;
-                        if(countRow >= num)
-                        {                  
-                            return false;                            
-                        }
+                        return false;                            
                     }
                 }
     
@@ -156,44 +154,43 @@
                     aux_l = 6;				
                 }
 				
+                if(pos['y'] <= 2)
+                {                    
+                    var yMin = 0;
+                    var yMax = 2;                            
+                }
+                else if(pos['y'] >= 3 && pos['y'] <= 5 )
+                {
+                    var yMin = 3;
+                    var yMax = 5;
+                }
+                else
+                {
+                    var yMin = 6;
+                    var yMax = 8;
+                }
                     
-                    for (var x = 0; x < 3; x++)
-                    {
-                        nLinha = x;
-                        if(pos['x'] >= 3)
-                        {							
-                            nLinha = aux_l;					
-                            aux_l++;
-                        }						                                                
-                        
-                        if(pos['y'] <= 2)
-                        {                    
-                            var yMin = 0;
-                            var yMax = 2;                            
-                        }
-                        else if(pos['y'] >= 3 && pos['y'] <= 5 )
+                for (var x = 0; x < 3; x++)
+                {
+                    nLinha = x;
+                    if(pos['x'] >= 3)
+                    {							
+                        nLinha = aux_l;					
+                        aux_l++;
+                    }						                                                
+                    
+                    for (var y = yMin; y <= yMax; y++) 
+                    {                               
+                        if(matrixPos[nLinha][y] == val)
                         {
-                            var yMin = 3;
-                            var yMax = 5;
-                        }
-                        else
-                        {
-                            var yMin = 6;
-                            var yMax = 8;
-                        }
-
-                        for (var y = yMin; y <= yMax; y++) 
-                        {                               
-                            if(matrix[nLinha][y] == val)
-                            {
-                                countTable++;
-                                if(countTable >= num)
-                                {                                     
-                                    return false;                            
-                                }
+                            countTable++;
+                            if(countTable >= num)
+                            {                                     
+                                return false;                            
                             }
-                            	        	                            
                         }
+                        	        	                            
+                    }
                 }                               
                 return true;
             }
@@ -244,7 +241,7 @@
                         if($($(this).get()).val())
                             numbersTable[$($(this).get()).val()] = $($(this).get()).val();                    
                     });                                                
-                    console.log(numbersTable);
+
                     for (var i = 1; i <= 9; i++)
                     {
                         if(!numbersTable[i])
@@ -280,9 +277,10 @@
                             var possilidades = arrayPossibilidades(id);
                             
                             if(possilidades)
-                            {   console.log(possilidades);
+                            {   
                                 for(var i = 0; i < possilidades.length ;i++)
                                 {
+                                    printMatrix(getMatrix());
                                     $('#tabuleiro').html(tabuleiro);
 
                                     //if(checkPos(id,possilidades[i]))
@@ -344,57 +342,62 @@
                 
                 var node = new Node(obj);
                 tree = new Tree(node);
-                
-                solveMatrix(getMatrix(),tree.root);                                        
+                printMatrix(obj['matrix']);
+                solveMatrix(tree.root);                                        
             }
 
-            function solveMatrix(matrix, parent)
+            function solveMatrix(parent)
             {   
-                var matris = null;
-                matris = matrix;
-                todosPreenchidosMatrix(matris);
+                var matrixSolve = $.extend(true, [], parent.getElement()['matrix']);
+
+                todosPreenchidosMatrix(matrixSolve);
+                var x = 0;
+                var y = 0;
+                var i = 0;
                 if(completado == true)
                 {   
-                    completaGame(matris);
-                    matris[33][33] = 1;
+                    completaGame(matrixSolve);
+                    matrixSolve[33][33] = 1;
                 }
                 if(completado == false)
                 {   
-                    for(var x =0; x < 9; x++) 
+                    for(x = 0; x < 9; x++) 
                     {
 
-                        for(var y =0 ; y < 9; y++)
+                        for(y =0 ; y < 9; y++)
                         {                                                                                                                
-                            if(!matris[x][y])
-                            {                                
+                            if(!matrixSolve[x][y])
+                            {   
                                 var pos = new Object();
                                 pos['x'] = x;
                                 pos['y'] = y;    
-                                var possilidades = arrayPossibilidadesMatrix(pos,matris);
-                                console.log(pos,possilidades,matris);
+                                var possilidades = arrayPossibilidadesMatrix(pos,matrixSolve);
+
                                 if(possilidades)
                                 {           
-                                                             
-                                    for(var i = 0; i < possilidades.length ;i++)
+                                    for(i = 0; i < possilidades.length ;i++)
                                     {   
-                                        var new_matrix = null;
-                                        new_matrix = matris;
+
+                                       
+                                        var new_matrix = $.extend(true, [], matrixSolve);
                                         new_matrix[x][y] = possilidades[i];        
-                                              
+                                        alert(1);
+                                        completaGame(new_matrix);      
                                         var obj = new Object();
                                         obj['value'] = possilidades[i];
                                         obj['matrix'] = new_matrix;  
                                                      
-                                        todosPreenchidosMatrix(matris);
+                                        todosPreenchidosMatrix(new_matrix);
                                         if(completado == true)
                                         {   
-                                            completaGame(matris);
-                                            matris[33][33] = 1;
-                                        }                                                                                                           
+                                            completaGame(new_matrix);
+                                            matrix[33][33] = 1;
+                                        }  
+                                                                                                         
                                         if(completado == false)
                                         {                                                                                        
                                             var new_parent = tree.addChild(parent, obj);
-                                            solveMatrix(new_matrix, new_parent); 
+                                            solveMatrix(new_parent); 
                                         }                                       
                                     }                           
                                 }
@@ -409,13 +412,13 @@
                 }             
             }
 
-            function todosPreenchidosMatrix(matrix)
+            function todosPreenchidosMatrix(matrixTodos)
             {                
                 for(var x = 0; x < 9; x++) 
                 {
                     for(var y = 0 ; y < 9; y++)
                     {                        
-                        if(!matrix[x][y])
+                        if(!matrixTodos[x][y])
                         {
                             return false;  
                         }                        
@@ -426,18 +429,35 @@
                 return true;
             }
             
-            function completaGame(matrix)
+            function completaGame(matrixCompleta)
             {
+                console.log('COMPLETA GAME!');
                 for(var x = 0; x < 9; x++) 
                 {
                     for(var y = 0 ; y < 9; y++)
                     {                        
-                        $('#field_'+x+'_'+y).val(matrix[x][y]);                        
+                        $('#field_'+x+'_'+y).val(matrixCompleta[x][y]);                        
                     }
                 }
             }
 
-
+            function printMatrix(matrixPrint)
+            {
+                var string = '';
+                for(var x = 0; x < 9; x++) 
+                {
+                    for(var y = 0 ; y < 9; y++)
+                    { 
+                        if(matrixPrint[x][y])                       
+                            string += "["+matrixPrint[x][y]+"]";                        
+                        else
+                            string += '[ ]';
+                    }
+                    string += "<br>";
+                }
+                string += "<br>";
+                $('html').append(string);
+            }
             
             function checkPos(id, value)
             {
@@ -451,6 +471,7 @@
                 
                 var val = value ? value : element.val();
                 var num = value ? 1 : 2;
+
                 // get all inputs near the ID of the parent table        
                 element.closest('table').find('input').each(function()  
                 {
@@ -561,10 +582,10 @@
 
             function fillSudoku()
             {
-                var matrix = new Array();
+                var matrixFill = new Array();
                 for(var rowCounter=0;rowCounter<9;rowCounter++)
                 {
-                    matrix[rowCounter] = new Array();
+                    matrixFill[rowCounter] = new Array();
                     for(var colCounter=0;colCounter<9;colCounter++)
                     {
                         //var number = colCounter/1 + 1 + (rowCounter*3) + Math.floor(rowCounter/3)%3;
@@ -573,7 +594,7 @@
                             number = number % 9;
                         if(number==0)
                             number=9;
-                        matrix[rowCounter][colCounter] = number;				
+                        matrixFill[rowCounter][colCounter] = number;				
                     }			
                 }
                 // Switching rows
@@ -590,9 +611,9 @@
                         row1 = row1 + no;
                         row2 = row2 + no;			
                         var tmpMatrix = new Array();
-                        tmpMatrix = matrix[row1];
-                        matrix[row1] = matrix[row2];
-                        matrix[row2] = tmpMatrix; 				
+                        tmpMatrix = matrixFill[row1];
+                        matrixFill[row1] = matrixFill[row2];
+                        matrixFill[row2] = tmpMatrix; 				
                     }			
                 }
                 // Switching columns
@@ -610,21 +631,21 @@
                         col2 = col2 + no;			
 
                         var tmpMatrix = new Array();
-                        for(var no3=0;no3<matrix.length;no3++)
+                        for(var no3=0;no3<matrixFill.length;no3++)
                         {
-                            tmpMatrixValue = matrix[no3][col1];
-                            matrix[no3][col1] = matrix[no3][col2];				
-                            matrix[no3][col2] = tmpMatrixValue;				
+                            tmpMatrixValue = matrixFill[no3][col1];
+                            matrixFill[no3][col1] = matrixFill[no3][col2];				
+                            matrixFill[no3][col2] = tmpMatrixValue;				
                         }
                     }	
                 }
 		
 			
-                for(var x=0;x<matrix.length;x++)
+                for(var x=0;x<matrixFill.length;x++)
                 {
-                    for(var y=0;y<matrix[x].length;y++)
+                    for(var y=0;y<matrixFill[x].length;y++)
                     {				
-                        $('#field_'+x+'_'+y).val(matrix[x][y]);						
+                        $('#field_'+x+'_'+y).val(matrixFill[x][y]);						
                     }			
                 }
             }
