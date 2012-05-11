@@ -25,18 +25,17 @@
             var tree;
             
             function getMatrix()
-            {
-                var game = $('#game');                 
-                var contRow = -1;
-                var contCol = 0;
+            {               
                 var matrix = new Array();
-                var val = null;
+               
                 for(var x =0; x < 9 ; x++)
                 {
                     matrix[x] = new Array();
                     for(var y=0; y < 9; y++)
-                    {   
-                        matrix[x][y] = $('#field_'+x+'_'+y).val();
+                    {   if($('#field_'+x+'_'+y).val())
+                            matrix[x][y] = parseInt($('#field_'+x+'_'+y).val());
+                        else
+                            matrix[x][y] = null;
                     }                
                 }    
                 return matrix;
@@ -46,6 +45,9 @@
             {                                          
                 var aPossibilidades = new Array();
                 var numbersTable = new Object();
+                
+                var nLinha = 0;
+                var aux_l = 0;
                 if(!matrix[pos['x']][pos['y']])
                 {
                     if(pos['x'] >= 3 && pos['x'] < 6)
@@ -57,7 +59,7 @@
                         aux_l = 6;				
                     }
 				
-                    aux_c = 0;
+                    
                     for (var x = 0; x < 3; x++)
                     {
                         nLinha = x;
@@ -70,7 +72,7 @@
                         if(pos['y'] <= 2)
                         {                    
                             var yMin = 0;
-                            var yMax = 2;
+                            var yMax = 2;                            
                         }
                         else if(pos['y'] >= 3 && pos['y'] <= 5 )
                         {
@@ -84,9 +86,10 @@
                         }
 
                         for (var y = yMin; y <= yMax; y++) 
-                        {                            
+                        {   
+                            if(matrix[nLinha][y])
                             numbersTable[matrix[nLinha][y]] = matrix[nLinha][y];	        	
-                            aux_c++;
+                            
                         }
                     }
                     
@@ -98,8 +101,11 @@
                                 aPossibilidades.push(i);
                         }
                     }
-                    if(aPossibilidades.length > 0)                       
+
+                    if(aPossibilidades.length > 0)
+                    {  
                         return aPossibilidades;
+                    }else return false;
                 }
                 return false;
                 
@@ -114,6 +120,8 @@
                 var val = value;
                 var num = 1;
                 
+                var aux_l = 0; //auxiliar para id das linhas               
+                var nLinha = 0;
                                                        
                 for (var i = 0; i < 9; i++)
                 {
@@ -147,45 +155,45 @@
                 {
                     aux_l = 6;				
                 }
-			
-                aux_c = 0;
-                for (var x = 0; x < 3; x++)
-                {
-                    nLinha = x;
-                    if(pos['x'] >= 3)
-                    {							
-                        nLinha = aux_l;					
-                        aux_l++;
-                    }						                                                
+				
                     
-                    if(pos['y'] <= 2)
-                    {                    
-                        var yMin = 0;
-                        var yMax = 2;
-                    }
-                    else if(pos['y'] >= 3 && pos['y'] <= 5 )
+                    for (var x = 0; x < 3; x++)
                     {
-                        var yMin = 3;
-                        var yMax = 5;
-                    }
-                    else
-                    {
-                        var yMin = 6;
-                        var yMax = 8;
-                    }
-
-                    for (var y = yMin; y <= yMax; y++) 
-                    {
-                        if(matrix[nLinha][y] == val)
+                        nLinha = x;
+                        if(pos['x'] >= 3)
+                        {							
+                            nLinha = aux_l;					
+                            aux_l++;
+                        }						                                                
+                        
+                        if(pos['y'] <= 2)
+                        {                    
+                            var yMin = 0;
+                            var yMax = 2;                            
+                        }
+                        else if(pos['y'] >= 3 && pos['y'] <= 5 )
                         {
-                            countTable++;
-                            if(countTable >= num)
-                            {                  
-                                return false;                            
+                            var yMin = 3;
+                            var yMax = 5;
+                        }
+                        else
+                        {
+                            var yMin = 6;
+                            var yMax = 8;
+                        }
+
+                        for (var y = yMin; y <= yMax; y++) 
+                        {                               
+                            if(matrix[nLinha][y] == val)
+                            {
+                                countTable++;
+                                if(countTable >= num)
+                                {                                     
+                                    return false;                            
+                                }
                             }
-                        }                        	        	
-                        aux_c++;                        
-                    }
+                            	        	                            
+                        }
                 }                               
                 return true;
             }
@@ -236,7 +244,7 @@
                         if($($(this).get()).val())
                             numbersTable[$($(this).get()).val()] = $($(this).get()).val();                    
                     });                                                
-
+                    console.log(numbersTable);
                     for (var i = 1; i <= 9; i++)
                     {
                         if(!numbersTable[i])
@@ -342,12 +350,13 @@
 
             function solveMatrix(matrix, parent)
             {   
-                
-                todosPreenchidosMatrix(matrix);
+                var matris = null;
+                matris = matrix;
+                todosPreenchidosMatrix(matris);
                 if(completado == true)
                 {   
-                    completaGame(matrix);
-                    matrix[33][33] = 1;
+                    completaGame(matris);
+                    matris[33][33] = 1;
                 }
                 if(completado == false)
                 {   
@@ -356,31 +365,31 @@
 
                         for(var y =0 ; y < 9; y++)
                         {                                                                                                                
-                            if(matrix[x][y] == '')
+                            if(!matris[x][y])
                             {                                
                                 var pos = new Object();
                                 pos['x'] = x;
                                 pos['y'] = y;    
-                                var possilidades = arrayPossibilidadesMatrix(pos,matrix);
-
+                                var possilidades = arrayPossibilidadesMatrix(pos,matris);
+                                console.log(pos,possilidades,matris);
                                 if(possilidades)
                                 {           
                                                              
                                     for(var i = 0; i < possilidades.length ;i++)
                                     {   
-                                        var new_matrix = matrix;                                 
+                                        var new_matrix = null;
+                                        new_matrix = matris;
                                         new_matrix[x][y] = possilidades[i];        
-                                              alert(1);
-                                        completaGame(matrix);
+                                              
                                         var obj = new Object();
                                         obj['value'] = possilidades[i];
                                         obj['matrix'] = new_matrix;  
                                                      
-                                        todosPreenchidosMatrix(matrix);
+                                        todosPreenchidosMatrix(matris);
                                         if(completado == true)
                                         {   
-                                            completaGame(matrix);
-                                            matrix[33][33] = 1;
+                                            completaGame(matris);
+                                            matris[33][33] = 1;
                                         }                                                                                                           
                                         if(completado == false)
                                         {                                                                                        
