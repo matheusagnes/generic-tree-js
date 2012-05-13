@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <title>SUDOKU</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <link type="text/css" href="css/custom-theme/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+        <link type="text/css" href="css/sudoku.css" rel="stylesheet" />	
+        <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="functions.js"></script>
+        <script type="text/javascript" src="tree.js"></script>
+        <link rel="stylesheet" href="css/jquery.jOrgChart.css"/>
+
+        <script src="js/jquery.jOrgChart.js"></script>
+
+        <script>
+            // procurar no tabuleiro locais obvios que eh so colocar um numero
+            // procurar a posição que tem poucas possibilidades
+            // fazer varios nodos para estas poucas possibilidades e ir testando
+            var totalNums = [25,55,54,53,52,51]; // total of numbers that will hide
+            var hideNumsMatrix = new Array();
+            var completado = false;            
+            var tree;
+            
+            function getMatrix()
+            {               
+                var matrixIni = new Array();
+               
+                for(var x =0; x < 9 ; x++)
+                {
+                    matrixIni[x] = new Array();
+                    for(var y=0; y < 9; y++)
+                    {   if($('#field_'+x+'_'+y).val())
+                            matrixIni[x][y] = parseInt($('#field_'+x+'_'+y).val());
+                        else
+                            matrixIni[x][y] = null;
+                    }                
+                }    
+                return matrixIni;
+            }
+            
+            function arrayPossibilidadesMatrix(x,y,matrixPoss)
+            {                                          
+                var aPossibilidades = new Array();
+                var numbersTable = new Object();
+                var nLinha = 0;
+                var aux_l = 0;
+                if(!matrixPoss[x][y])
+                {
+                    if(x >= 3 && x <= 5)
+                    {
+                        aux_l = 3;
+                    }
+                    if(x >= 6)
+                    {
+                        aux_l = 6;				
+                    }
+                    
+                    if(y <= 2)
+                    {                    
+                        var yMin = 0;
+                        var yMax = 2;                            
+                    }
+                    else if(y >= 3 && y <= 5 )
+                    {
+                        var yMin = 3;
+                        var yMax = 5;
+                    }
+                    else
+                    {
+                        var yMin = 6;
+                        var yMax = 8;
+                    }
+                    
+                    for (var z = 0; z < 3; z++)
+                    {
+                        nLinha = z;
+                        if(x >= 3)
+                        {							
+                            nLinha = aux_l;					
+                            aux_l++;
+                        }						                                                
+                        
+                        for (var w = yMin; w <= yMax; w++) 
+                        {   
+                            if(matrixPoss[nLinha][w])
+                                numbersTable[matrixPoss[nLinha][w]] = matrixPoss[nLinha][w];	        	
+                        }
+                    }
+                    for (var i = 1; i <= 9; i++)
+                    {
+                        if(!numbersTable[i])
+                        {                           
+                            if(checkPosMatrix(x,y, i, matrixPoss))
+                                aPossibilidades.push(i);
+                        }
+                    }
+                    if(aPossibilidades.length > 0)
+                    {  
+                        return aPossibilidades;
+                    }
+                }
+                return false;
+            }
+            
+            function checkPosMatrix(x,y, value,matrixPos)
+            {                               
+                var countTable = 0;
+                var countRow = 0;
+                var countCol = 0
+                var val = value;
+                var num = 1;
+                var aux_l = 0; //auxiliar para id das linhas               
+                var nLinha = 0;
+                                                       
+                for (var i = 0; i < 9; i++)
+                {
+                    if(matrixPos[i][y] == val)
+                    {
+                        countCol++;
+                        if(countCol >= num)
+                        {                                              
+                            return false;                            
+                        }
+                    }
+                }
+                
+                for (var i = 0; i < 9; i++)
+                {
+                    if(matrixPos[x][i] == val)
+                    {
+                        countRow++;
+                        if(countRow >= num)
+                        {                                              
+                            return false;                            
+                        }                          
+                    }
+                }
+    
+                if(x >= 3 && x <= 5)
+                {
+                    aux_l = 3;
+                }
+                if(x >= 6)
+                {
+                    aux_l = 6;				
+                }
+                if(y <= 2)
+                {                    
+                    var yMin = 0;
+                    var yMax = 2;                            
+                }
+                else if(y >= 3 && y <= 5 )
+                {
+                    var yMin = 3;
+                    var yMax = 5;
+                }
+                else
+                {
+                    var yMin = 6;
+                    var yMax = 8;
+                }
+                for (var z = 0; z < 3; z++)
+                {
+                    nLinha = z;
+                    if(x >= 3)
+                    {							
+                        nLinha = aux_l;					
+                        aux_l++;
+                    }						                                                
+                    for (var w = yMin; w <= yMax; w++) 
+                    {                               
+                        if(matrixPos[nLinha][w] == val)
+                        {
+                            countTable++;
+                            if(countTable >= num)
+                            {                                     
+                                return false;                            
+                            }
+                        }
+                    }
+                }                               
+                return true;
+            }                       
+                                   
+            function solveGameMatrix()
+            {
+                var obj = new Object();
+                obj['value'] = 'R';
+                obj['matrix'] = getMatrix(); 
+                
+                var node = new Node(obj);
+                tree = new Tree(node);
+                printMatrix(obj['matrix']);
+                
+                console.log(obj['matrix']);
+                
+                solveMatrix(tree.root);                                        
+            }
+
+            function solveMatrix(parent)
+            {   
+                var matrixSolve = $.extend(true, [], parent.getElement()['matrix']); 
+                
+                
+                if(!completado)
+                {                                           
+                    for(var x = 0; x < 9; x++) 
+                    {
+                        for(var y =0 ; y < 9; y++)
+                        {                                                                                                                
+                            if(!matrixSolve[x][y])
+                            {
+                                if(todosPreenchidosMatrix(matrixSolve) && !completado)
+                                {
+                                    console.log('asdasdsdasd');
+                                    completado = true;
+                                    printMatrix(matrixSolve);
+                                    matrixSolve[123][321] =1;                                    
+                                }
+                                if(!completado)
+                                {
+                                    var possibilidades = arrayPossibilidadesMatrix(x,y,matrixSolve);
+                                    if(possibilidades)
+                                    {           
+                                        
+                                        for(var i = 0; i < possibilidades.length ;i++)
+                                        {   
+                                            //var new_matrix = $.extend(true, [], matrixSolve);
+                                            //var matrixSolve = $.extend(true, [], matrixSolve);
+
+                                            //new_matrix[x][y] = possibilidades[i];  
+                                            matrixSolve[x][y] = null;
+                                            matrixSolve[x][y] = possibilidades[i];        
+
+                                            var obj = new Object();
+                                            obj['value'] = possibilidades[i];
+                                            //obj['matrix'] = new_matrix;
+                                            obj['matrix'] = matrixSolve;
+
+                                            if(todosPreenchidosMatrix(matrixSolve))
+                                            {
+                                                console.log('asdasdsdasd');
+                                                completado = true;
+                                                printMatrix(matrixSolve);
+                                                matrixSolve[123][321] =1;                                    
+                                            }
+
+                                           
+                                            solveMatrix(tree.addChild(parent, obj)); 
+                                        }                           
+                                    }
+                                }
+                            }
+                        }                    
+                    }                            
+                }                 
+                else
+                {   
+                    console.log('completo else 2');               
+                    return true;               
+                }             
+            }
+
+            function todosPreenchidosMatrix(matrixTodos)
+            {                                                           
+                for(var x = 0; x < 9; x++) 
+                {
+                    for(var y = 0 ; y < 9; y++)
+                    {                                                                        
+                        if(!matrixTodos[x][y])
+                        {
+                            return false;  
+                        }                        
+                    }
+                }
+                completado = true;                
+                completaGame(matrixTodos);
+                console.log(matrixTodos);
+                matrixTodos[1231][3123] = 123;
+                return true;
+            }
+            
+            function completaGame(matrixCompleta)
+            {                
+                for(var x = 0; x < 9; x++) 
+                {
+                    for(var y = 0 ; y < 9; y++)
+                    {                        
+                        $('#field_'+x+'_'+y).val(matrixCompleta[x][y]);                        
+                    }
+                }
+            }
+
+            function printMatrix(matrixPrint)
+            {
+                var string = '';
+                for(var x = 0; x < 9; x++) 
+                {
+                    for(var y = 0 ; y < 9; y++)
+                    { 
+                        if(matrixPrint[x][y])                       
+                            string += "["+matrixPrint[x][y]+"]";                        
+                        else
+                            string += '[ ]';
+                    }
+                    string += "<br>";
+                }
+                string += "<br>";
+                $('html').append(string);
+            }
+            
+            
+            function randomPos(row,col)
+            {
+                var random_row, random_col;
+                
+                random_row = Math.floor(Math.random()*9);
+                random_col = Math.floor(Math.random()*9);
+
+                if(hideNumsMatrix[random_row][random_col])
+                {
+                    return randomPos(row,col);
+                }
+                
+                var arrayRandom = new Array();
+                arrayRandom['row'] = random_row;
+                arrayRandom['col'] = random_col;
+                
+                return arrayRandom;
+            }		
+            
+            function hideNums(level)
+            {
+                var row = Math.floor(Math.random()*9);
+                var col = Math.floor(Math.random()*9);
+                
+                hideNumsMatrix[row][col] = $('#field_'+row+'_'+col).val();
+                
+                for(var i=0;i<totalNums[level]; i++)
+                {
+                                        
+                    row = Math.floor(Math.random()*9);
+                    col = Math.floor(Math.random()*9);
+                    var arrayRandom = randomPos(row,col);
+                    
+                    hideNumsMatrix[arrayRandom['row']][arrayRandom['col']] = $('#field_'+arrayRandom['row']+'_'+arrayRandom['col']).val();
+                    
+                    
+                    $('#field_'+arrayRandom['row']+'_'+arrayRandom['col']).val('').attr('readonly',false);
+                }
+                
+            }
+
+            function fillSudoku()
+            {
+                var matrixFill = new Array();
+                for(var rowCounter=0;rowCounter<9;rowCounter++)
+                {
+                    matrixFill[rowCounter] = new Array();
+                    for(var colCounter=0;colCounter<9;colCounter++)
+                    {
+                        //var number = colCounter/1 + 1 + (rowCounter*3) + Math.floor(rowCounter/3)%3;
+                        var number = colCounter + 1 + (rowCounter*3) + Math.floor(rowCounter/3)%3;
+                        if(number>9)
+                            number = number % 9;
+                        if(number==0)
+                            number=9;
+                        matrixFill[rowCounter][colCounter] = number;				
+                    }			
+                }
+                // Switching rows
+                for(var no=0;no<9;no+=3)
+                {
+                    for(var no2=0;no2<3;no2++)
+                    {
+                        row1 = Math.floor(Math.random()*3);	
+                        row2 = Math.floor(Math.random()*3);	
+                        while(row2==row1)
+                        {
+                            row2 = Math.floor(Math.random()*3);	
+                        }
+                        row1 = row1 + no;
+                        row2 = row2 + no;			
+                        var tmpMatrix = new Array();
+                        tmpMatrix = matrixFill[row1];
+                        matrixFill[row1] = matrixFill[row2];
+                        matrixFill[row2] = tmpMatrix; 				
+                    }			
+                }
+                // Switching columns
+                for(var no=0;no<9;no+=3)
+                {
+                    for(var no2=0;no2<3;no2++)
+                    {
+                        col1 = Math.floor(Math.random()*3);	
+                        col2 = Math.floor(Math.random()*3);	
+                        while(col2==col1)
+                        {
+                            col2 = Math.floor(Math.random()*3);	
+                        }
+                        col1 = col1 + no;
+                        col2 = col2 + no;			
+
+                        var tmpMatrix = new Array();
+                        for(var no3=0;no3<matrixFill.length;no3++)
+                        {
+                            tmpMatrixValue = matrixFill[no3][col1];
+                            matrixFill[no3][col1] = matrixFill[no3][col2];				
+                            matrixFill[no3][col2] = tmpMatrixValue;				
+                        }
+                    }	
+                }
+		
+			
+                for(var x=0;x<matrixFill.length;x++)
+                {
+                    for(var y=0;y<matrixFill[x].length;y++)
+                    {				
+                        $('#field_'+x+'_'+y).val(matrixFill[x][y]);						
+                    }			
+                }
+            }
+            
+            function navigate(e,id)
+            {
+                var evt = (e) ? e : window.event;
+                var tecla = evt.keyCode;
+
+                var left = 37;
+                var up = 38;
+                var right = 39;
+                var down = 40;
+
+                if( tecla == left || tecla == up || tecla == right || tecla == down )
+                {
+                    var split_field = id.split('_');
+                    var row = split_field[1];
+                    var coluna = split_field[2];
+
+                    var field;
+                    var newrow = row;
+                    var newCol = coluna;
+
+                    if( tecla == left )
+                        newCol = parseFloat(coluna) -1;
+                    else
+                        if( tecla == up )
+                            newrow = parseFloat(row) -1;
+                    else
+                        if( tecla == right )
+                            newCol = parseFloat(coluna) +1;
+                    else
+                        if( tecla == down )
+                            newrow = parseFloat(row) +1;
+
+                    field = $('#field_'+newrow+'_'+newCol);
+                    if( field )
+                        field.focus();
+                }
+            }
+            
+            function initSudoku(level)
+            {
+                for (var x = 0; x < 9; x++)
+
+                {
+                    hideNumsMatrix[x] = new Array();
+                }
+                fillSudoku();
+                hideNums(level);                
+            }
+            
+            function solveSudoku()
+            {
+                
+                for (var x = 0; x < 9; x++) 
+                {
+                    for (var y = 0;  y < 9;  y++) 
+                    {
+                        if(hideNumsMatrix[x][y])
+                        {
+                            $('#field_'+x+'_'+y).val(hideNumsMatrix[x][y]).css('background-color','lightblue'); 
+                        }
+                    }
+                }
+            }
+
+            $(document).ready(function() 
+            {
+                var aux_l = 3; //auxiliar para id das linhas
+                var aux_c = 0; 
+                var nLinha = 0;
+                var $game = $('<div>').attr('id', 'game');
+
+                for (var z = 0; z < 9; z++)
+                {
+                    var $sudoku_table = $('<table>').attr('id', 'sudoku_table_'+z).attr('style','float:left; ');
+				
+                    // if para ajustar o ID da linha
+                    if(z >= 3 && z < 6)
+                    {
+                        aux_l = 3;
+                    }
+                    // if para ajustar o ID da linha
+                    if(z>5)
+                    {
+                        aux_l = 6;				
+                    }
+				
+                    aux_c = 0;
+                    for (var x = 0; x < 3; x++)
+                    {
+                        nLinha = x;
+                        // if para ajustar o ID da linha
+                        if(z >= 3)
+                        {							
+                            nLinha = aux_l;					
+                            aux_l++;
+                        }						
+                        var $row = $('<tr>').attr('id','row_'+nLinha);
+                        
+                        
+                        if(z == 0 || z == 3 || z == 6)
+                        {
+                            aux_c = 0;
+                        }
+                        
+                        if(z == 1 || z == 4 || z == 7)
+                        {
+                            aux_c = 3;
+                        }
+                        if(z == 2 || z == 5 || z == 8)
+                        {
+                            aux_c = 6;
+                        }
+                        
+                        for (var y = 0; y < 3; y++) 
+                        {
+                            $row.append($('<td>').attr('id','col_'+nLinha+'_'+aux_c).append('<input onfocus=" if($(this).attr(\'class\') != \'field backGroundRed\'){$(this).attr(\'class\', \'field backGroundLightGreen\');} this.select(); " onBlur = "if($(this).attr(\'class\') != \'field backGroundRed\'){$(this).attr(\'class\', \'field backGroundWhite\');}" onkeyup= "if(evt.keyCode >= 37 && evt.keyCode <= 40){ return false;}checkPos(this.id,null);"; onkeydown = "navigate(event, this.id);" id="field_'+nLinha+'_'+aux_c+'" type="text" maxlength="1" class="field" readonly="1" >'));		        	
+                            aux_c++;
+                        }
+                        $sudoku_table.append($row);
+                    }
+                    $game.append($sudoku_table);
+            	
+                }
+            
+                $('#tabuleiro').append($game);
+                initSudoku(0);
+                
+                $('#sudoku_table_0').css('border-top','6px solid black');
+                $('#sudoku_table_0').css('border-left','6px solid black');
+                $('#sudoku_table_0').css('border-right','3px solid black');
+                $('#sudoku_table_0').css('border-bottom','3px solid black');
+                
+                $('#sudoku_table_1').css('border-top','6px solid black');
+                $('#sudoku_table_1').css('border-bottom','3px solid black');
+                $('#sudoku_table_1').css('border-right','3px solid black');
+                
+                $('#sudoku_table_2').css('border-top','6px solid black');
+                $('#sudoku_table_2').css('border-right','6px solid black');
+                $('#sudoku_table_2').css('border-bottom','3px solid black');
+                
+                $('#sudoku_table_3').css('border-left','6px solid black');
+                $('#sudoku_table_3').css('border-bottom','3px solid black');
+                $('#sudoku_table_3').css('border-right','3px solid black');
+                
+                $('#sudoku_table_4').css('border-bottom','3px solid black');
+                $('#sudoku_table_4').css('border-right','3px solid black');
+                
+                
+                $('#sudoku_table_5').css('border-right','6px solid black');
+                $('#sudoku_table_5').css('border-bottom','3px solid black');
+                
+                $('#sudoku_table_6').css('border-left','6px solid black');
+                $('#sudoku_table_6').css('border-bottom','6px solid black');
+                $('#sudoku_table_6').css('border-right','3px solid black');
+                
+                $('#sudoku_table_7').css('border-bottom','6px solid black');
+                $('#sudoku_table_7').css('border-right','3px solid black');
+                
+                $('#sudoku_table_8').css('border-right','6px solid black');
+                $('#sudoku_table_8').css('border-bottom','6px solid black');
+                
+            });	
+	
+        </script>
+
+    </head>
+
+    <div id='content'>	
+
+
+        <div style="width: 460px; margin-left: 50px;margin-top: 10px;float: left;" id="tabuleiro"> </div>
+
+        <div id="menu">
+
+            <div class="categoria">
+                Dificuldade
+            </div>
+
+            <div class="menuItem" onclick="initSudoku(0);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 1
+            </div>
+            <div class="menuItem" onclick="initSudoku(1);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 2
+            </div>
+            <div class="menuItem" onclick="initSudoku(2);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 3
+            </div>
+            <div class="menuItem" onclick="initSudoku(3);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 4
+            </div>
+            <div class="menuItem" onclick="initSudoku(4);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> 5
+            </div>
+
+            <div class="categoria">
+                Operations
+            </div>
+
+            <div class="menuItem" onclick="initSudoku(1);">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> Reset
+            </div>
+            <div class="menuItem" onclick="solveSudoku();">
+                <span class="ui-icon ui-icon-triangle-1-e" style="float:left;"> </span> Solve
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="tree">
+        <div id="org_tree">
+
+        </div>
+
+        <div id="tree" class="orgChart">
+
+        </div>
+        <div id ='text'>
+        </div>
+
+    </div>
+
+
+</body>
+</html>
+
+
